@@ -25,6 +25,9 @@ jobs:
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Enable Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
       - name: Check formatting, hooks, and Typst builds
         run: nix flake check
 
