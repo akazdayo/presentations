@@ -36,6 +36,27 @@
         inherit (pkgs) lib;
         typixLib = typix.lib.${system};
 
+        slidevPrettier = pkgs.buildNpmPackage {
+          pname = "slidev-prettier";
+          version = "1.0.0";
+          src = ./tools/slidev-prettier;
+          npmDepsHash = "sha256-u9wpcUqJ3DnWE9Jz5EMEO0fSVFjJ3qZup10rvTbgMmY=";
+          dontNpmBuild = true;
+          nativeBuildInputs = [pkgs.makeWrapper];
+          meta.mainProgram = "prettier";
+          installPhase = ''
+            runHook preInstall
+
+            mkdir -p "$out/lib/slidev-prettier" "$out/bin"
+            cp -r node_modules "$out/lib/slidev-prettier/"
+            makeWrapper ${pkgs.nodejs}/bin/node "$out/bin/prettier" \
+              --add-flags "$out/lib/slidev-prettier/node_modules/prettier/bin/prettier.cjs" \
+              --add-flags "--plugin=$out/lib/slidev-prettier/node_modules/prettier-plugin-slidev/dist/index.js"
+
+            runHook postInstall
+          '';
+        };
+
         treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
           projectRootFile = "flake.nix";
 
@@ -44,9 +65,23 @@
             gofmt.enable = true;
             prettier = {
               enable = true;
+              package = slidevPrettier;
               settings = {
                 endOfLine = "lf";
                 proseWrap = "preserve";
+                overrides = [
+                  {
+                    files = [
+                      "**/slides/slides.md"
+                      "**/slides/pages/*.md"
+                      "2026/sechack-1st-event/slides.md"
+                      "2026/sechack-1st-event/pages/*.md"
+                      "templates/slidev/slides.md"
+                      "templates/slidev/pages/*.md"
+                    ];
+                    options.parser = "slidev";
+                  }
+                ];
               };
             };
             shfmt.enable = true;

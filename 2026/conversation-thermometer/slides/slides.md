@@ -60,8 +60,8 @@ transition: null
 ## 今私が何をしていて、次に何をしないといけなくて、元々何をしていたんだっけ！
 
 ---
-
-## layout: two-cols
+layout: two-cols
+---
 
 # できること
 
@@ -97,8 +97,8 @@ transition: null
 <img src="./2026-05-30_17-14.png" class="max-w-full max-h-100" />
 
 ---
-
-## layout: two-cols
+layout: two-cols
+---
 
 # これを使うと面白そうなこと
 

@@ -21,8 +21,19 @@
     "prettier-plugin-slidev": "^1.0.5"
   },
   "prettier": {
-    "plugins": [
-      "prettier-plugin-slidev"
+    "overrides": [
+      {
+        "files": [
+          "slides.md",
+          "pages/*.md"
+        ],
+        "options": {
+          "parser": "slidev",
+          "plugins": [
+            "prettier-plugin-slidev"
+          ]
+        }
+      }
     ]
   }
 }

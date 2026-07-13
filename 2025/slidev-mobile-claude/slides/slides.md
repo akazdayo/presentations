@@ -45,16 +45,16 @@ transition: null
 </div>
 
 ---
-
-## layout: center
+layout: center
+---
 
 # Slidev × スマホClaude Code × Vercel
 
 ## 相性良すぎて草
 
 ---
-
-## layout: fact
+layout: fact
+---
 
 <h2 class="text-center">
   このスライド、実は...
@@ -63,8 +63,8 @@ transition: null
 </h2>
 
 ---
-
-## layout: center
+layout: center
+---
 
 ## なぜこの組み合わせが最強なのか？
 
@@ -77,8 +77,8 @@ transition: null
 </div>
 
 ---
-
-## layout: two-cols
+layout: two-cols
+---
 
 ## 従来の開発フロー
 
@@ -102,8 +102,8 @@ transition: null
 <p class="text-xl mt-4">🚀 爆速！</p>
 
 ---
-
-## layout: center
+layout: center
+---
 
 ## 実際のワークフロー
 
@@ -120,8 +120,8 @@ Vercel ▲
 <p class="text-xl mt-4">全部自動。人間は指示するだけ。</p>
 
 ---
-
-## layout: fact
+layout: fact
+---
 
 <h2 class="text-center">
   つまり...
@@ -134,8 +134,8 @@ Vercel ▲
 </h2>
 
 ---
-
-## layout: center
+layout: center
+---
 
 ## まとめ
 
@@ -152,8 +152,8 @@ Vercel ▲
 </p>
 
 ---
-
-## layout: center
+layout: center
+---
 
 ご清聴ありがとうございました！
 

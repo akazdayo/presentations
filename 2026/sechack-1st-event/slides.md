@@ -16,8 +16,8 @@ duration: 3min
 SecHack365 世界観駆動コース
 
 ---
-
-## layout: two-cols
+layout: two-cols
+---
 
 <div class="flex flex-col justify-center items-center h-full px-8">
   <div class="flex items-center gap-6">
@@ -65,8 +65,8 @@ SecHack365 世界観駆動コース
 </div>
 
 ---
-
-## layout: center
+layout: center
+---
 
 # テーマ概要
 
@@ -89,8 +89,8 @@ SecHack365 世界観駆動コース
 </p>
 
 ---
-
-## layout: fact
+layout: fact
+---
 
 ## Nixってすごく面倒くさい！
 
@@ -107,15 +107,15 @@ SecHack365 世界観駆動コース
 - 学習曲線が急
 
 ---
-
-## layout: center
+layout: center
+---
 
 - **ビルドがありえないほど遅い**
 - **キャッシュを使いづらい**
 
 ---
-
-## layout: center
+layout: center
+---
 
 # それを解決したい！
 
@@ -186,7 +186,7 @@ flowchart LR
   - VirusTotalなどを使えば良さそうだけど、私にそのあたりの知識がないのでわからない...！
 
 ---
-
-## layout: center
+layout: center
+---
 
 # 一年間よろしくお願いします！

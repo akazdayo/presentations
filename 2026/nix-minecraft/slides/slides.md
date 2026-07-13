@@ -62,9 +62,7 @@ transition: null
 </div>
 
 ---
-
 layout: two-cols
-
 ---
 
 # Nixとかいうやつ
@@ -79,8 +77,8 @@ layout: two-cols
 <img src="https://brand.nixos.org/logos/nixos-logo-default-gradient-black-regular-vertical-recommended.svg" class="w-72 mx-auto mt-10"/>
 
 ---
-
-## layout: statement
+layout: statement
+---
 
 # 例を出すと...
 
@@ -117,14 +115,14 @@ $ git config --global init.defaultBranch "main"
 ```
 
 ---
-
-## layout: statement
+layout: statement
+---
 
 # 本題: マイクラなら
 
 ---
-
-## layout: full
+layout: full
+---
 
 <DebianMinecraftChaos />
 
@@ -163,14 +161,14 @@ $ git config --global init.defaultBranch "main"
 ```
 
 ---
-
-## layout: statement
+layout: statement
+---
 
 # これが楽しいところ
 
 ---
-
-## layout: statement
+layout: statement
+---
 
 # じゃあみんな入っていいよ〜☺️
 
@@ -219,6 +217,7 @@ $ git config --global init.defaultBranch "main"
     />
   </a>
 </div>
+
 ---
 
 # マイクラサーバー管理者ってめんどくさい...
@@ -272,7 +271,7 @@ $ git config --global init.defaultBranch "main"
 </div>
 
 ---
-
-## layout: statement
+layout: statement
+---
 
 # Nixは世界を救うのでみんな使おう
