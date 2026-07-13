@@ -33,6 +33,7 @@ jobs:
     needs: discover
     strategy:
       fail-fast: true
+      max-parallel: 6
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
