@@ -26,12 +26,14 @@ jobs:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
+        uses: DeterminateSystems/magic-nix-cache-action@v14
 
       - name: Check formatting, hooks, and Typst builds
         run: nix flake check
 
       - name: Build all PDFs and the root page
+        env:
+          CHROME_DEVEL_SANDBOX: ""
         run: nix develop -c just build-all-pdfs
 
       - name: Configure GitHub Pages
