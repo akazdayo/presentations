@@ -33,26 +33,34 @@ function indexLink(presentation: Presentation): string {
     presentation.kind === "typst" ? path : `${presentation.route}/`;
   const format =
     presentation.kind === "typst" ? "Typst PDF" : `${presentation.kind} Web`;
-  return `- [${presentation.date} — ${presentation.title}（${format}）](./${linkPath})`;
+  return `<li><a href="./${linkPath}">${presentation.date} — ${presentation.title}（${format}）</a></li>`;
 }
 
 function writeIndex(): void {
-  const markdown = `---
-layout: default
-title: Presentations
----
-
-# Presentations
-
-${presentations.map(indexLink).join("\n")}
+  mkdirSync(site, { recursive: true });
+  const html = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Presentations</title>
+    <style>
+      body { max-width: 64rem; margin: 3rem auto; padding: 0 1.5rem; font: 16px/1.6 system-ui, sans-serif; color: #24292f; }
+      a { color: #0969da; }
+      li { margin: .5rem 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Presentations</h1>
+    <ul>
+${presentations.map((presentation) => `      ${indexLink(presentation)}`).join("\n")}
+    </ul>
+  </body>
+</html>
 `;
 
-  writeFileSync(join(site, "index.md"), markdown);
-  writeFileSync(
-    join(site, "_config.yml"),
-    "theme: jekyll-theme-primer\ntitle: Presentations\n",
-  );
-  console.log(`Generated ${join(site, "index.md")}`);
+  writeFileSync(join(site, "index.html"), html);
+  console.log(`Generated ${join(site, "index.html")}`);
 }
 
 function verifyArtifacts(expected: Presentation[]): void {

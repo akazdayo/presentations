@@ -14,11 +14,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  prepare:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - presentation: nostr-one-year
+            kind: web
+          - presentation: slidev-mobile-claude
+            kind: web
+          - presentation: nix-lt
+            kind: web
+          - presentation: post-2603
+            kind: typst
+          - presentation: nix-journey
+            kind: web
+          - presentation: nix-cache-05-27
+            kind: typst
+          - presentation: conversation-thermometer
+            kind: web
+          - presentation: nix-tee
+            kind: web
+          - presentation: nix-minecraft
+            kind: web
+          - presentation: sechack-1st-event
+            kind: web
+          - presentation: sechack-2nd-event
+            kind: typst
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.matrix.outputs.presentations }}
-      base_path: ${{ steps.pages.outputs.base_path }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -26,48 +49,20 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Configure GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v6
-
-      - name: Generate build matrix
-        id: matrix
-        run: echo "presentations=$(bun run scripts/presentation.ts list --json)" >> "$GITHUB_OUTPUT"
-
-      - name: Generate site index
-        run: bun run scripts/build-site.ts index
-
-      - name: Upload site index
-        uses: actions/upload-artifact@v4
-        with:
-          name: site-index
-          path: _site
-          if-no-files-found: error
-          retention-days: 1
-
-  build:
-    needs: prepare
-    strategy:
-      fail-fast: false
-      matrix:
-        presentation: ${{ fromJSON(needs.prepare.outputs.matrix) }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install Nix
+      - name: Install Nix for Typst
+        if: matrix.kind == 'typst'
         uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable Magic Nix Cache
+      - name: Enable Nix cache for Typst
+        if: matrix.kind == 'typst'
         uses: DeterminateSystems/magic-nix-cache-action@v14
 
       - name: Build ${{ matrix.presentation }}
         env:
-          PAGES_BASE_PATH: ${{ needs.prepare.outputs.base_path }}
-        run: nix develop -c bun run scripts/build-site.ts build "${{ matrix.presentation }}"
+          PAGES_BASE_PATH: /${{ github.event.repository.name }}
+        run: bun run scripts/build-site.ts build "${{ matrix.presentation }}"
 
       - name: Upload ${{ matrix.presentation }}
         uses: actions/upload-artifact@v4
@@ -77,41 +72,8 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  assemble:
-    needs:
-      - prepare
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download site artifacts
-        uses: actions/download-artifact@v5
-        with:
-          pattern: site-*
-          path: _site
-          merge-multiple: true
-
-      - name: Build the Markdown index with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: _site
-          destination: _site-built
-
-      - name: Restore Slidev assets excluded by Jekyll
-        shell: bash
-        run: |
-          while IFS= read -r -d '' source; do
-            relative="${source#_site/}"
-            destination="_site-built/$relative"
-            sudo install -D "$source" "$destination"
-          done < <(find _site -type f -name '_*.js' -print0)
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: _site-built
-
   deploy:
-    needs: assemble
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -121,6 +83,27 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Download site artifacts
+        uses: actions/download-artifact@v5
+        with:
+          pattern: site-*
+          path: _site
+          merge-multiple: true
+
+      - name: Generate site index
+        run: bun run scripts/build-site.ts index
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
