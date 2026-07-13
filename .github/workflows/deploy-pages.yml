@@ -14,7 +14,43 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.presentations }}
+      base_path: ${{ steps.pages.outputs.base_path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Generate build matrix
+        id: matrix
+        run: echo "presentations=$(bun run scripts/presentation.ts list --json)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate site index
+        run: bun run scripts/build-site.ts index
+
+      - name: Upload site index
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-index
+          path: _site
+          if-no-files-found: error
+          retention-days: 1
+
   build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        presentation: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,14 +64,31 @@ jobs:
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@v14
 
-      - name: Configure GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v6
-
-      - name: Build site
+      - name: Build ${{ matrix.presentation }}
         env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: nix develop -c just build-site
+          PAGES_BASE_PATH: ${{ needs.prepare.outputs.base_path }}
+        run: nix develop -c bun run scripts/build-site.ts build "${{ matrix.presentation }}"
+
+      - name: Upload ${{ matrix.presentation }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ matrix.presentation }}
+          path: _site
+          if-no-files-found: error
+          retention-days: 1
+
+  assemble:
+    needs:
+      - prepare
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download site artifacts
+        uses: actions/download-artifact@v5
+        with:
+          pattern: site-*
+          path: _site
+          merge-multiple: true
 
       - name: Build the Markdown index with Jekyll
         uses: actions/jekyll-build-pages@v1
@@ -58,7 +111,7 @@ jobs:
           path: _site-built
 
   deploy:
-    needs: build
+    needs: assemble
     runs-on: ubuntu-latest
     permissions:
       contents: read

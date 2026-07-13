@@ -7,17 +7,21 @@ import {
 
 function usage(): never {
   throw new Error(
-    "Usage: bun run scripts/presentation.ts <list|dev|build> [name]",
+    "Usage: bun run scripts/presentation.ts <list [--json]|dev|build> [name]",
   );
 }
 
-const [command, name, ...extraArguments] = Bun.argv.slice(2);
+const [command, argument, ...extraArguments] = Bun.argv.slice(2);
 
 if (extraArguments.length > 0) usage();
 
 switch (command) {
   case "list":
-    if (name) usage();
+    if (argument === "--json") {
+      console.log(JSON.stringify(presentations.map(({ name }) => name)));
+      break;
+    }
+    if (argument) usage();
     for (const presentation of presentations) {
       console.log(
         [
@@ -29,12 +33,12 @@ switch (command) {
     }
     break;
   case "dev":
-    if (!name) usage();
-    devPresentation(findPresentation(name));
+    if (!argument) usage();
+    devPresentation(findPresentation(argument));
     break;
   case "build":
-    if (!name) usage();
-    buildPresentation(findPresentation(name));
+    if (!argument) usage();
+    buildPresentation(findPresentation(argument));
     break;
   default:
     usage();
