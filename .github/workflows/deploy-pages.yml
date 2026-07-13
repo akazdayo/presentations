@@ -21,47 +21,82 @@ jobs:
         include:
           - presentation: nostr-one-year
             kind: web
+            source: 2025/nostr-one-year
+            output: 2025/nostr-one-year/slides
           - presentation: slidev-mobile-claude
             kind: web
+            source: 2025/slidev-mobile-claude
+            output: 2025/slidev-mobile-claude/slides
           - presentation: nix-lt
             kind: web
+            source: 2026/nix-lt
+            output: 2026/nix-lt
           - presentation: post-2603
             kind: typst
+            source: 2026/post-2603
+            output: 2026/post-2603/poster
           - presentation: nix-journey
             kind: web
+            source: 2026/nix-journey
+            output: 2026/nix-journey/slides
           - presentation: nix-cache-05-27
             kind: typst
+            source: 2026/nix-cache-05-27
+            output: 2026/nix-cache-05-27/poster
           - presentation: conversation-thermometer
             kind: web
+            source: 2026/conversation-thermometer
+            output: 2026/conversation-thermometer/slides
           - presentation: nix-tee
             kind: web
+            source: 2026/nix-tee
+            output: 2026/nix-tee/slides
           - presentation: nix-minecraft
             kind: web
+            source: 2026/nix-minecraft
+            output: 2026/nix-minecraft/slides
           - presentation: sechack-1st-event
             kind: web
+            source: 2026/sechack-1st-event
+            output: 2026/sechack-1st-event
           - presentation: sechack-2nd-event
             kind: typst
+            source: 2026/sechack-2nd-event
+            output: 2026/sechack-2nd-event/poster
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Restore ${{ matrix.presentation }}
+        id: presentation_cache
+        uses: actions/cache/restore@v4
+        with:
+          path: _site/${{ matrix.output }}
+          key: site-v1-${{ runner.os }}-${{ matrix.presentation }}-${{ hashFiles(format('{0}/**', matrix.source), 'shared/**', 'scripts/**') }}-${{ matrix.kind == 'typst' && hashFiles('flake.nix', 'flake.lock', 'templates/**') || 'web' }}
+
       - name: Install Bun
+        if: steps.presentation_cache.outputs.cache-hit != 'true'
         uses: oven-sh/setup-bun@v2
 
       - name: Install Nix for Typst
-        if: matrix.kind == 'typst'
+        if: matrix.kind == 'typst' && steps.presentation_cache.outputs.cache-hit != 'true'
         uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build ${{ matrix.presentation }}
+        if: steps.presentation_cache.outputs.cache-hit != 'true'
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}
         run: bun run scripts/build-site.ts build "${{ matrix.presentation }}"
 
-      - name: Generate site index
-        run: bun run scripts/build-site.ts index
+      - name: Cache ${{ matrix.presentation }}
+        if: steps.presentation_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: _site/${{ matrix.output }}
+          key: ${{ steps.presentation_cache.outputs.cache-primary-key }}
 
       - name: Upload ${{ matrix.presentation }}
         uses: actions/upload-artifact@v4
@@ -82,12 +117,21 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Download site artifacts
         uses: actions/download-artifact@v5
         with:
           pattern: site-*
           path: _site
           merge-multiple: true
+
+      - name: Generate site index
+        run: bun run scripts/build-site.ts index
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
