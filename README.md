@@ -27,30 +27,29 @@ nix develop
 just list
 ```
 
-Slidev の起動とビルド:
+形式にかかわらず、カタログ名を指定して起動・ビルドできます。
+`dev` は現在 Slidev と Marp に対応しています。
 
 ```bash
 just dev nix-journey
-just build-slides nix-journey
+just dev nix-lt
+just build nix-journey
+just build nix-lt
+just build post-2603
 ```
 
-Marp のプレビューとWebビルド:
+`scripts/lib/presentations.ts` は年別ディレクトリを走査して資料を自動検出し、
+共通バックエンドインターフェイスが Slidev、Marp、Typst の形式固有処理を
+吸収します。`just` の各コマンドと Pages のサイト生成は同じ検出結果を参照します。
 
-```bash
-cd 2026/nix-lt
-bun install
-cd ../..
-just dev-marp
-just build-marp
-```
+各発表の `presentation.json` には、一覧やPagesで表示する日付とタイトルだけを
+記述します。ファイルまたは項目がない場合は `TBD` と `Untitled (<name>)` が使われます。
 
-Typst ポスターのビルド:
-
-```bash
-just build-poster post-2603
-just build-poster nix-cache-05-27
-just build-slides sechack-1st-event
-just build-poster sechack-2nd-event
+```json
+{
+  "date": "2026-03-11",
+  "title": "私がNixについてやったこと"
+}
 ```
 
 `nix flake check` または `just check` は、3つの Typst ポスターをすべてビルドします。
