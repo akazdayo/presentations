@@ -7,7 +7,7 @@
     "dev": "slidev --open"
   },
   "dependencies": {
-    "@slidev/cli": "^52.16.0",
+    "@slidev/cli": "52.17.0",
     "@slidev/theme-default": "latest",
     "vue": "^3.5.33"
   }

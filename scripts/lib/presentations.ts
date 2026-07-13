@@ -190,7 +190,7 @@ function sourceDirectory(presentation: WebPresentation): string {
   return join(repositoryRoot, presentation.source);
 }
 
-function routeBase(route: string, pagesBasePath: string): string {
+export function routeBase(route: string, pagesBasePath: string): string {
   return `${pagesBasePath}/${route}/`.replace(/\/+/g, "/");
 }
 
@@ -219,6 +219,8 @@ const slidevBackend: PresentationBackend<
       options.outputDirectory,
       "--base",
       routeBase(presentation.route, options.pagesBasePath),
+      "--router-mode",
+      "hash",
     ]);
   },
 };

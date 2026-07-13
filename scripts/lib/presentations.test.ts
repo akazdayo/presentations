@@ -10,6 +10,7 @@ import {
   placeholderTitle,
   presentationBackends,
   presentations,
+  routeBase,
 } from "./presentations";
 
 describe("presentation catalog", () => {
@@ -35,6 +36,12 @@ describe("presentation catalog", () => {
     );
     expect(artifactPath(findPresentation("post-2603"))).toBe(
       "2026/post-2603/poster/poster.pdf",
+    );
+  });
+
+  test("builds normalized GitHub Pages base paths", () => {
+    expect(routeBase("2026/example/slides", "/presentations/")).toBe(
+      "/presentations/2026/example/slides/",
     );
   });
 
