@@ -96,7 +96,6 @@ switch (command) {
   }
   case "index":
     if (name) throw new Error("Usage: build-site.ts index");
-    prepareSite();
     writeIndex();
     break;
   default:
