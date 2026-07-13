@@ -55,14 +55,13 @@ jobs:
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable Nix cache for Typst
-        if: matrix.kind == 'typst'
-        uses: DeterminateSystems/magic-nix-cache-action@v14
-
       - name: Build ${{ matrix.presentation }}
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}
         run: bun run scripts/build-site.ts build "${{ matrix.presentation }}"
+
+      - name: Generate site index
+        run: bun run scripts/build-site.ts index
 
       - name: Upload ${{ matrix.presentation }}
         uses: actions/upload-artifact@v4
@@ -83,21 +82,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-
       - name: Download site artifacts
         uses: actions/download-artifact@v5
         with:
           pattern: site-*
           path: _site
           merge-multiple: true
-
-      - name: Generate site index
-        run: bun run scripts/build-site.ts index
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
