@@ -164,6 +164,16 @@
           )
           posterSources;
 
+        posterBuildScripts =
+          lib.mapAttrs (
+            _: typstSource:
+              typixLib.buildTypstProjectLocal (
+                commonTypstArgs
+                // {inherit typstSource;}
+              )
+          )
+          posterSources;
+
         preCommitCheck = inputs.git-hooks.lib.${system}.run {
           src = checkSource;
           hooks.treefmt = {
@@ -173,6 +183,13 @@
         };
       in {
         packages = posterPackages // {default = posterPackages.post-2603;};
+
+        apps =
+          lib.mapAttrs' (name: value: {
+            name = "build-${name}";
+            value = flake-utils.lib.mkApp {drv = value;};
+          })
+          posterBuildScripts;
 
         checks =
           lib.mapAttrs' (name: value: {

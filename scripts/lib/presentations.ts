@@ -1,11 +1,4 @@
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 export const repositoryRoot = join(import.meta.dir, "../..");
@@ -39,7 +32,9 @@ export interface TypstPresentation extends PresentationBase {
 }
 
 export type Presentation =
-  SlidevPresentation | MarpPresentation | TypstPresentation;
+  | SlidevPresentation
+  | MarpPresentation
+  | TypstPresentation;
 
 export interface SiteBuildOptions {
   outputDirectory: string;
@@ -191,22 +186,6 @@ export function run(command: string, args: string[], cwd: string): void {
   }
 }
 
-function capture(command: string, args: string[], cwd: string): string {
-  const result = Bun.spawnSync([command, ...args], {
-    cwd,
-    stderr: "inherit",
-    stdout: "pipe",
-  });
-
-  if (!result.success) {
-    throw new Error(
-      `Command failed (${result.exitCode}): ${command} ${args.join(" ")}`,
-    );
-  }
-
-  return new TextDecoder().decode(result.stdout).trim();
-}
-
 function sourceDirectory(presentation: WebPresentation): string {
   return join(repositoryRoot, presentation.source);
 }
@@ -265,53 +244,31 @@ const marpBackend: PresentationBackend<
   },
 };
 
-function findPdf(path: string): string | undefined {
-  if (statSync(path).isFile()) {
-    return path.endsWith(".pdf") ? path : undefined;
-  }
-
-  for (const entry of readdirSync(path)) {
-    const found = findPdf(join(path, entry));
-    if (found) return found;
-  }
-
-  return undefined;
-}
-
 const typstBackend: PresentationBackend<TypstPresentation> = {
   build(presentation) {
-    run("nix", ["build", `path:.#${presentation.target}`], repositoryRoot);
-  },
-  buildForSite(presentation, options) {
-    const output = capture(
+    run(
       "nix",
       [
-        "build",
-        `${options.flakeRef}#${presentation.target}`,
-        "--no-link",
-        "--print-out-paths",
+        "run",
+        `path:.#build-${presentation.target}`,
+        "--",
+        join(repositoryRoot, artifactPath(presentation)),
       ],
       repositoryRoot,
-    )
-      .split("\n")
-      .filter(Boolean)
-      .at(-1);
-
-    if (!output) {
-      throw new Error(
-        `No output produced for Typst target: ${presentation.target}`,
-      );
-    }
-
-    const pdf = findPdf(output);
-    if (!pdf) {
-      throw new Error(
-        `No PDF produced for Typst target: ${presentation.target}`,
-      );
-    }
-
+    );
+  },
+  buildForSite(presentation, options) {
     mkdirSync(options.outputDirectory, { recursive: true });
-    cpSync(pdf, join(options.outputDirectory, "poster.pdf"));
+    run(
+      "nix",
+      [
+        "run",
+        `${options.flakeRef}#build-${presentation.target}`,
+        "--",
+        join(options.outputDirectory, "poster.pdf"),
+      ],
+      repositoryRoot,
+    );
   },
 };
 
