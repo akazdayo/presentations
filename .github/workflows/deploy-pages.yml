@@ -14,55 +14,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Discover presentations
+        id: matrix
+        run: echo "matrix=$(bun run scripts/presentation.ts matrix)" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: discover
     strategy:
       fail-fast: true
-      matrix:
-        include:
-          - presentation: nostr-one-year
-            kind: web
-            source: 2025/nostr-one-year
-            output: 2025/nostr-one-year/slides
-          - presentation: slidev-mobile-claude
-            kind: web
-            source: 2025/slidev-mobile-claude
-            output: 2025/slidev-mobile-claude/slides
-          - presentation: nix-lt
-            kind: web
-            source: 2026/nix-lt
-            output: 2026/nix-lt
-          - presentation: post-2603
-            kind: typst
-            source: 2026/post-2603
-            output: 2026/post-2603/poster
-          - presentation: nix-journey
-            kind: web
-            source: 2026/nix-journey
-            output: 2026/nix-journey/slides
-          - presentation: nix-cache-05-27
-            kind: typst
-            source: 2026/nix-cache-05-27
-            output: 2026/nix-cache-05-27/poster
-          - presentation: conversation-thermometer
-            kind: web
-            source: 2026/conversation-thermometer
-            output: 2026/conversation-thermometer/slides
-          - presentation: nix-tee
-            kind: web
-            source: 2026/nix-tee
-            output: 2026/nix-tee/slides
-          - presentation: nix-minecraft
-            kind: web
-            source: 2026/nix-minecraft
-            output: 2026/nix-minecraft/slides
-          - presentation: sechack-1st-event
-            kind: web
-            source: 2026/sechack-1st-event
-            output: 2026/sechack-1st-event
-          - presentation: sechack-2nd-event
-            kind: typst
-            source: 2026/sechack-2nd-event
-            output: 2026/sechack-2nd-event/poster
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -6,6 +6,7 @@ import {
   artifactPath,
   discoverPresentations,
   findPresentation,
+  presentationMatrix,
   placeholderDate,
   placeholderTitle,
   presentationBackends,
@@ -37,6 +38,24 @@ describe("presentation catalog", () => {
     expect(artifactPath(findPresentation("post-2603"))).toBe(
       "2026/post-2603/poster/poster.pdf",
     );
+  });
+
+  test("generates the GitHub Actions matrix from the catalog", () => {
+    const matrix = presentationMatrix();
+
+    expect(matrix.include.map(({ presentation }) => presentation)).toEqual(
+      presentations.map(({ name }) => name),
+    );
+    for (const [index, entry] of matrix.include.entries()) {
+      const presentation = presentations[index];
+      expect(entry.output).toBe(presentation.route);
+      expect(entry.source).toBe(
+        presentation.route.split("/").slice(0, 2).join("/"),
+      );
+      expect(entry.kind).toBe(
+        presentation.kind === "typst" ? "typst" : "web",
+      );
+    }
   });
 
   test("builds normalized GitHub Pages base paths", () => {

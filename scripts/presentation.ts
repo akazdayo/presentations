@@ -2,12 +2,13 @@ import {
   buildPresentation,
   devPresentation,
   findPresentation,
+  presentationMatrix,
   presentations,
 } from "./lib/presentations";
 
 function usage(): never {
   throw new Error(
-    "Usage: bun run scripts/presentation.ts <list [--json]|dev|build> [name]",
+    "Usage: bun run scripts/presentation.ts <list [--json]|matrix|dev|build> [name]",
   );
 }
 
@@ -31,6 +32,10 @@ switch (command) {
         ].join(" "),
       );
     }
+    break;
+  case "matrix":
+    if (argument) usage();
+    console.log(JSON.stringify(presentationMatrix()));
     break;
   case "dev":
     if (!argument) usage();

@@ -36,6 +36,13 @@ export type Presentation =
   | MarpPresentation
   | TypstPresentation;
 
+export interface PresentationMatrixEntry {
+  presentation: string;
+  kind: "web" | "typst";
+  source: string;
+  output: string;
+}
+
 export interface SiteBuildOptions {
   outputDirectory: string;
   pagesBasePath: string;
@@ -171,6 +178,19 @@ export function discoverPresentations(root = repositoryRoot): Presentation[] {
 }
 
 export const presentations = discoverPresentations();
+
+export function presentationMatrix(
+  catalog: Presentation[] = presentations,
+): { include: PresentationMatrixEntry[] } {
+  return {
+    include: catalog.map((presentation) => ({
+      presentation: presentation.name,
+      kind: presentation.kind === "typst" ? "typst" : "web",
+      source: presentation.route.split("/").slice(0, 2).join("/"),
+      output: presentation.route,
+    })),
+  };
+}
 
 export function run(command: string, args: string[], cwd: string): void {
   const result = Bun.spawnSync([command, ...args], {
