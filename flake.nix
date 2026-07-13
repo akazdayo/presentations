@@ -77,7 +77,6 @@
               ".slidev"
               ".terraform"
               "_site"
-              "_site-built"
               "dist"
               "node_modules"
               "result"
@@ -160,7 +159,6 @@
             ++ [
               treefmtEval.config.build.wrapper
               pkgs.bun
-              pkgs.chromium
               pkgs.go
               pkgs.just
               pkgs.marp-cli

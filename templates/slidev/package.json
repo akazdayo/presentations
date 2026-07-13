@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "build": "slidev build",
-    "dev": "slidev --open",
-    "export": "slidev export"
+    "dev": "slidev --open"
   },
   "dependencies": {
     "@slidev/cli": "^52.16.0",

@@ -6,7 +6,6 @@ dist/
 .slidev/
 .terraform/
 _site/
-_site-built/
 result
 result-*
 **/poster/*.pdf

@@ -48,7 +48,7 @@ build-slides name:
 dev-marp:
   cd 2026/nix-lt; bun run dev
 
-# Export the Marp deck to PDF.
+# Build the Marp deck as static HTML.
 build-marp:
   cd 2026/nix-lt; bun run build
 
@@ -56,9 +56,9 @@ build-marp:
 build-poster name:
   nix build ".#{{name}}"
 
-# Build every PDF and generate the GitHub Pages root site.
-build-all-pdfs:
-  ./scripts/build-pdfs.sh
+# Build every web artifact and generate the GitHub Pages Markdown index.
+build-site:
+  bun run scripts/build-site.ts
 
 # Check the Nix flake and build all Typst posters.
 check:

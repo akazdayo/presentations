@@ -34,7 +34,7 @@ just dev nix-journey
 just build-slides nix-journey
 ```
 
-Marp のプレビューとPDF出力:
+Marp のプレビューとWebビルド:
 
 ```bash
 cd 2026/nix-lt
@@ -63,26 +63,26 @@ nix fmt
 
 Alejandra（Nix）、Prettier（Markdown / JSON / YAML / TypeScript / Vue）、typstyle（Typst）、shfmt（Shell）、`terraform fmt`、gofmt がまとめて実行されます。`nix develop` に入ると git-hooks.nix が同じtreefmtチェックをpre-commit hookとして設定します。`nix flake check` でも整形状態とhookを検証します。
 
-全資料のPDFとPages用のMarkdown索引をまとめて生成する場合:
+全資料のWeb成果物とPages用のMarkdown索引をまとめて生成する場合:
 
 ```bash
-just build-all-pdfs
+just build-site
 ```
 
-成果物は `_site/` に生成されます。11発表から、Slidev 7件、Marp 1件、Typst 3件の計11 PDFを作成します。
+成果物は `_site/` に生成されます。Slidev 7件とMarp 1件は静的Webページ、Typst 3件はPDFとして出力されます。
 
 ## GitHub Pages
 
 `.github/workflows/deploy-pages.yml` は `main` へのpushまたは手動実行で、次を自動実行します。
 
 1. Nix開発環境を用意する
-2. treefmt、git-hooks.nix、Typstビルドを `nix flake check` で検証する
-3. Slidev、Marp、Typstの全資料をPDF化する
-4. 全PDFへの箇条書きリンクを持つ `_site/index.md` を生成する
+2. GitHub Pagesのサブパスを取得する
+3. Slidev、Marp、Typstの全資料をWeb表示用にビルドする
+4. 資料への箇条書きリンクを持つ `_site/index.md` を生成する
 5. GitHub公式のJekyll ActionとPrimerテーマでMarkdownをビルドする
 6. 生成サイトをGitHub Pagesへデプロイする
 
-PDFはGitへコミットせず、毎回ソースからActions上で生成します。初回のみリポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。
+生成物はGitへコミットせず、毎回ソースからActions上で生成します。初回のみリポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。
 
 ## Layout
 

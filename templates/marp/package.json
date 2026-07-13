@@ -3,8 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "marp slides.md --pdf --allow-local-files --browser-path \"$(command -v chromium)\"",
-    "dev": "marp slides.md --preview --allow-local-files --browser-path \"$(command -v chromium)\""
+    "build": "marp slides.md --html --allow-local-files",
+    "dev": "marp slides.md --preview --allow-local-files"
   },
   "devDependencies": {
     "@marp-team/marp-cli": "^4.2.3"
