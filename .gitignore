@@ -1,0 +1,14 @@
+.direnv/
+.env
+.pre-commit-config.yaml
+node_modules/
+dist/
+.slidev/
+.terraform/
+_site/
+_site-built/
+result
+result-*
+**/poster/*.pdf
+**/slides/*.pdf
+**/slides/*.pptx

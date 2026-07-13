@@ -1,0 +1,13 @@
+{
+  "name": "nix-lt",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "marp slides.md --pdf --allow-local-files --browser-path \"$(command -v chromium)\"",
+    "dev": "marp slides.md --preview --allow-local-files --browser-path \"$(command -v chromium)\"",
+    "export:pptx": "marp slides.md --pptx --allow-local-files --browser-path \"$(command -v chromium)\""
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "^4.2.3"
+  }
+}
