@@ -43,6 +43,16 @@ jobs:
           source: _site
           destination: _site-built
 
+      - name: Restore Slidev assets excluded by Jekyll
+        shell: bash
+        run: |
+          while IFS= read -r -d '' source; do
+            relative="${source#_site/}"
+            destination="_site-built/$relative"
+            mkdir -p "$(dirname "$destination")"
+            cp "$source" "$destination"
+          done < <(find _site -type f -name '_*.js' -print0)
+
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
