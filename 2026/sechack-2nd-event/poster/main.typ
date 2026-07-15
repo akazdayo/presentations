@@ -11,7 +11,7 @@
   fill: rgb("#222222"),
 )
 
-#set par(justify: false, leading: 0.72em)
+#set par(justify: false, leading: 0.65em)
 #set heading(numbering: none)
 
 #block(inset: 4mm)[
