@@ -1,3 +1,4 @@
+#import "@preview/zebra:0.1.0": qrcode
 #import "components.typ": *
 
 #set page(
@@ -15,6 +16,17 @@
 #set heading(numbering: none)
 
 #block(inset: 4mm)[
+  #place(top + right)[
+    #align(center)[
+      #qrcode(
+        "https://github.com/akazdayo/reproductive-nix-cache",
+        quiet-zone: true,
+        background-fill: white,
+        width: 20mm,
+      )
+    ]
+  ]
+
   #align(left)[
     #text(
       size: 14pt,
