@@ -95,38 +95,107 @@ flowchart LR
 
 # Binary Cacheの課題
 
-Binary Cacheは「ビルド時間」を短縮できる一方で、**ビルド結果を誰が作り、どこまで信用できるか**という問題が残る
+<p class="mt-1 text-lg font-semibold">
+  「署名者」は確認できる。しかし、「その入力からできた成果物か」は確認できない。
+</p>
 
-- **カバレッジ**: キャッシュが存在しないパッケージは、結局ローカルで長時間ビルドする必要がある
-- **信頼**: 署名者を信頼するモデルなので、小規模・個人運用のキャッシュは採用しづらい
-- **検証**: ビルドをしないので、本当にそのソースコードから生成されたものか検証できない
-  - Nixは再現性を求める言語なのでキャッシュによって再現性が失われてはならない
-  - Chrome入れたと思ったらChromiumだった！？！？！は嫌
+<div class="mt-5 grid grid-cols-[1.55fr_0.85fr] gap-7 items-center">
+  <div class="rounded-2xl border border-gray-300 bg-gray-50 px-5 py-5">
+    <div class="flex items-center justify-between gap-2 text-center">
+      <div class="w-28 rounded-xl border-2 border-blue-400 bg-white px-2 py-3">
+        <div class="text-2xl">👤</div>
+        <div class="font-bold">利用者</div>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-gray-500">取得</div>
+        <div class="text-3xl leading-5 text-blue-500">→</div>
+      </div>
+      <div class="w-36 rounded-xl border-2 border-amber-400 bg-amber-50 px-2 py-3">
+        <div class="font-bold">Binary Cache</div>
+        <div class="mt-1 text-xs">成果物 + 署名</div>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-gray-500">署名を照合</div>
+        <div class="text-3xl leading-5 text-blue-500">→</div>
+      </div>
+      <div class="w-32 rounded-xl border-2 border-emerald-400 bg-emerald-50 px-2 py-3">
+        <div class="font-bold">信頼済み<br />公開鍵リスト</div>
+      </div>
+    </div>
+    <div class="mt-4 rounded-lg bg-red-50 px-4 py-2 text-center text-sm font-bold text-red-600">
+      わかるのは「誰が署名したか」まで — 入力 → 成果物の正しさは別問題
+    </div>
+  </div>
+
+  <div class="space-y-3 text-sm leading-relaxed">
+    <div class="rounded-xl border-l-4 border-amber-400 bg-amber-50 px-4 py-3">
+      <b>信頼</b><br />署名者そのものを信じる必要がある
+    </div>
+    <div class="rounded-xl border-l-4 border-red-400 bg-red-50 px-4 py-3">
+      <b>検証</b><br />本当にそのソースから生成されたかは不明
+    </div>
+    <div class="rounded-xl border-l-4 border-gray-400 bg-gray-100 px-4 py-3">
+      <b>カバレッジ</b><br />未登録のパッケージは結局ローカルビルド
+    </div>
+  </div>
+</div>
 
 ---
 
 # 提案するアプローチ
 
-- **入力ハッシュに対して対応するビルド成果物ハッシュの対応表を分散台帳上に作りたい**
-  - 世界中のマシンでビルドして、TEE署名や、IP, Logなどを用いてビルダーの独立性などを評価し、対応するペアの信頼値を評価する
-  - 「これが絶対に正しい！」を言い切るのは諦めた。
+<p class="mt-1 text-lg font-semibold">
+  署名者ではなく、<b>複数の独立したビルド結果</b>を根拠に成果物を判断する。
+</p>
 
-```mermaid
-flowchart LR
-  ledger[("分散台帳\n入力→成果物ハッシュ対応表")]
+<div class="mt-4 grid grid-cols-[1fr_1.25fr] gap-5 items-stretch">
+  <div class="rounded-2xl border border-gray-300 bg-gray-50 p-4">
+    <div class="mb-2 text-center text-sm font-bold text-gray-600">世界中の独立ビルダー</div>
+    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+      <div class="rounded-lg border-2 border-violet-300 bg-white px-1 py-3"><b>Builder A</b><br />TEE / IP / Log</div>
+      <div class="rounded-lg border-2 border-violet-300 bg-white px-1 py-3"><b>Builder B</b><br />TEE / IP / Log</div>
+      <div class="rounded-lg border-2 border-violet-300 bg-white px-1 py-3"><b>Builder C</b><br />TEE / IP / Log</div>
+    </div>
+    <div class="my-1 text-center text-2xl leading-5 text-violet-500">↓</div>
+    <div class="rounded-xl border-2 border-violet-400 bg-violet-50 px-3 py-3 text-center text-sm">
+      <b>同じ入力をそれぞれビルド</b><br />
+      入力ハッシュ → 成果物ハッシュ
+    </div>
+    <div class="my-1 text-center text-2xl leading-5 text-violet-500">↓</div>
+    <div class="rounded-xl border-2 border-emerald-400 bg-emerald-50 px-3 py-3 text-center text-sm">
+      <b>分散台帳に記録</b><br />一致度 + 独立性から信頼値を算出
+    </div>
+  </div>
 
-  subgraph builders["世界中の独立ビルダー"]
-    b1["Builder A\nTEE署名 / IP / Log"]
-    b2["Builder B\nTEE署名 / IP / Log"]
-    b3["Builder C\nTEE署名 / IP / Log"]
-  end
-
-  b1 -->|build| output["ビルド成果物ハッシュペア"]
-  b2 -->|build| output
-  b3 -->|build| output
-  output -->|信頼値を評価| ledger
-  ledger -->|十分に信頼できる対応ペア| client["👤\n利用者"]
-```
+  <div class="flex flex-col justify-center rounded-2xl border border-blue-200 bg-blue-50 p-5">
+    <div class="flex items-center gap-3 text-center">
+      <div class="w-28 rounded-xl border-2 border-blue-400 bg-white px-2 py-3">
+        <div class="text-2xl">👤</div>
+        <div class="font-bold">利用者</div>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-gray-500">成果物を取得</div>
+        <div class="text-3xl leading-5 text-blue-500">→</div>
+      </div>
+      <div class="w-36 rounded-xl border-2 border-amber-400 bg-amber-50 px-2 py-3 text-sm">
+        <b>Binary Cache</b><br />成果物
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-gray-500">ハッシュを照合</div>
+        <div class="text-3xl leading-5 text-blue-500">→</div>
+      </div>
+      <div class="w-32 rounded-xl border-2 border-emerald-400 bg-white px-2 py-3 text-sm">
+        <b>台帳の<br />信頼値</b>
+      </div>
+    </div>
+    <div class="mt-5 rounded-lg bg-white px-4 py-3 text-center text-sm font-bold text-blue-700 shadow-sm">
+      台帳は成果物を配布しない。<br />利用者が「この成果物を使うか」判断するための証拠を提供する。
+    </div>
+    <div class="mt-3 text-center text-xs text-gray-500">
+      目標は「絶対に正しい」の証明ではなく、判断できる材料を増やすこと
+    </div>
+  </div>
+</div>
 
 ---
 
