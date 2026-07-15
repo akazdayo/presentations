@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  affectedPresentations,
   artifactPath,
   discoverPresentations,
   findPresentation,
@@ -52,10 +53,22 @@ describe("presentation catalog", () => {
       expect(entry.source).toBe(
         presentation.route.split("/").slice(0, 2).join("/"),
       );
-      expect(entry.kind).toBe(
-        presentation.kind === "typst" ? "typst" : "web",
-      );
+      expect(entry.kind).toBe(presentation.kind === "typst" ? "typst" : "web");
     }
+  });
+
+  test("selects only presentations affected by presentation-local changes", () => {
+    expect(
+      affectedPresentations([
+        "2026/nix-lt/slides.md",
+        ".github/workflows/deploy-pages.yml",
+      ]).map(({ name }) => name),
+    ).toEqual(["nix-lt"]);
+  });
+
+  test("selects every presentation for shared build input changes", () => {
+    expect(affectedPresentations(["shared/theme.css"])).toEqual(presentations);
+    expect(affectedPresentations(["flake.lock"])).toEqual(presentations);
   });
 
   test("builds normalized GitHub Pages base paths", () => {

@@ -179,9 +179,9 @@ export function discoverPresentations(root = repositoryRoot): Presentation[] {
 
 export const presentations = discoverPresentations();
 
-export function presentationMatrix(
-  catalog: Presentation[] = presentations,
-): { include: PresentationMatrixEntry[] } {
+export function presentationMatrix(catalog: Presentation[] = presentations): {
+  include: PresentationMatrixEntry[];
+} {
   return {
     include: catalog.map((presentation) => ({
       presentation: presentation.name,
@@ -190,6 +190,34 @@ export function presentationMatrix(
       output: presentation.route,
     })),
   };
+}
+
+const siteWideInputs = ["flake.lock", "flake.nix", "shared/", "templates/"];
+
+export function affectedPresentations(
+  changedPaths: string[],
+  catalog: Presentation[] = presentations,
+): Presentation[] {
+  const normalizedPaths = changedPaths.map((path) =>
+    path.replaceAll("\\\\", "/"),
+  );
+  const changesAllPresentations = normalizedPaths.some((path) =>
+    siteWideInputs.some((input) =>
+      input.endsWith("/") ? path.startsWith(input) : path === input,
+    ),
+  );
+
+  if (changesAllPresentations) return catalog;
+
+  const changedDirectories = new Set(
+    normalizedPaths
+      .map((path) => /^(\d{4}\/[^/]+)(?:\/|$)/.exec(path)?.[1])
+      .filter((path) => path !== undefined),
+  );
+
+  return catalog.filter((presentation) =>
+    changedDirectories.has(presentation.route.split("/").slice(0, 2).join("/")),
+  );
 }
 
 export function run(command: string, args: string[], cwd: string): void {
