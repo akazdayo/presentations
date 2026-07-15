@@ -12,7 +12,7 @@
   fill: rgb("#222222"),
 )
 
-#set par(justify: false, leading: 0.65em)
+#set par(justify: false, leading: 0.60em)
 #set heading(numbering: none)
 
 #block(inset: 4mm)[
@@ -112,7 +112,7 @@
           現状は以下を想定している。
           - Sybil Attack
             - 複数のビルダーを装い、一致数と信頼スコアを水増しする。
-          - TEE.fail
+          - TEE侵害・Attestation偽装
             - TEEの脆弱性を悪用し、不正な成果物を正当と偽る。
           - 証拠のリプレイ
             - 証拠を再利用・複製し、独立した証拠数を水増しする。

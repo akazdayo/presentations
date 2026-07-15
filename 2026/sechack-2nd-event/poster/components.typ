@@ -10,7 +10,7 @@
 
 #let section(title, body, level: 1) = block(
   width: 100%,
-  inset: (x: 2.5mm, y: 1.5mm),
+  inset: (x: 2.5mm, y: 1mm),
 )[
   #text(
     size: 14pt,
