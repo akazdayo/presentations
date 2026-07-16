@@ -1,22 +1,7 @@
 # presentations
 
-過去の発表資料を、年・発表単位でまとめた monorepo です。Slidev、Marp、Typst の資料と、発表に必要な画像・デモコード・ロックファイルを保存しています。
-
-## Catalog
-
-| Date                    | Presentation                                    | Format | Source                                                            |
-| ----------------------- | ----------------------------------------------- | ------ | ----------------------------------------------------------------- |
-| 2025-12-19              | Nostrを一年間使ってみた感想                     | Slidev | [`2025/nostr-one-year`](2025/nostr-one-year/)                     |
-| 2025-12-20              | Slidev × スマホClaude Code × Vercel             | Slidev | [`2025/slidev-mobile-claude`](2025/slidev-mobile-claude/)         |
-| 2026-02-13              | TerraformでNixOSをデプロイする                  | Marp   | [`2026/nix-lt`](2026/nix-lt/)                                     |
-| 2026-03                 | 単眼カメラを用いたVR向け仮想トラッカーの制作    | Typst  | [`2026/post-2603`](2026/post-2603/)                               |
-| 2026-03-11              | 私がNixについてやったこと                       | Slidev | [`2026/nix-journey`](2026/nix-journey/)                           |
-| 2026-05-27              | TEEを活用したNix Binary Cacheの信頼スコアリング | Typst  | [`2026/nix-cache-05-27`](2026/nix-cache-05-27/)                   |
-| 2026-05-30              | 会話の温度計                                    | Slidev | [`2026/conversation-thermometer`](2026/conversation-thermometer/) |
-| 2026-06-05              | Nix Binary CacheとTEE                           | Slidev | [`2026/nix-tee`](2026/nix-tee/)                                   |
-| 2026-06-06              | NixOSでMinecraftサーバーを構築する              | Slidev | [`2026/nix-minecraft`](2026/nix-minecraft/)                       |
-| 2026 summer — 1st event | SecHack365 テーマ概要（Slidev）                 | Slidev | [`2026/sechack-1st-event`](2026/sechack-1st-event/)               |
-| 2026 summer — 2nd event | SecHack365 テーマ概要（Typst flyer）            | Typst  | [`2026/sechack-2nd-event`](2026/sechack-2nd-event/)               |
+過去のプレゼンテーション資料をまとめたリポジトリです！Actionsで自動デプロイしてるー
+https://akazdayo.github.io/presentations
 
 ## Development
 
