@@ -43,6 +43,12 @@ export interface PresentationMatrixEntry {
   output: string;
 }
 
+export interface PresentationIndexEntry {
+  url: string;
+  title: string;
+  date: string;
+}
+
 export interface SiteBuildOptions {
   outputDirectory: string;
   pagesBasePath: string;
@@ -240,6 +246,23 @@ function sourceDirectory(presentation: WebPresentation): string {
 
 export function routeBase(route: string, pagesBasePath: string): string {
   return `${pagesBasePath}/${route}/`.replace(/\/+/g, "/");
+}
+
+export function presentationIndex(
+  catalog: Presentation[] = presentations,
+  siteBaseUrl: string,
+): PresentationIndexEntry[] {
+  const normalizedBaseUrl = siteBaseUrl.replace(/\/+$/, "");
+
+  return catalog.map((presentation) => ({
+    url: `${normalizedBaseUrl}/${
+      presentation.kind === "typst"
+        ? artifactPath(presentation)
+        : `${presentation.route}/`
+    }`,
+    title: presentation.title,
+    date: presentation.date,
+  }));
 }
 
 function installAndRun(presentation: WebPresentation, args: string[]): void {

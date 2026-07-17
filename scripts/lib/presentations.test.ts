@@ -8,6 +8,7 @@ import {
   discoverPresentations,
   findPresentation,
   presentationMatrix,
+  presentationIndex,
   placeholderDate,
   placeholderTitle,
   presentationBackends,
@@ -75,6 +76,26 @@ describe("presentation catalog", () => {
     expect(routeBase("2026/example/slides", "/presentations/")).toBe(
       "/presentations/2026/example/slides/",
     );
+  });
+
+  test("generates public URLs for the presentation index", () => {
+    expect(
+      presentationIndex(
+        [findPresentation("nix-lt"), findPresentation("post-2603")],
+        "https://example.com/presentations/",
+      ),
+    ).toEqual([
+      {
+        url: "https://example.com/presentations/2026/nix-lt/",
+        title: "TerraformでNixOSをデプロイする",
+        date: "2026-02-13",
+      },
+      {
+        url: "https://example.com/presentations/2026/post-2603/poster/poster.pdf",
+        title: "単眼カメラを用いたVR向け仮想トラッカーの制作",
+        date: "2026-03",
+      },
+    ]);
   });
 
   test("discovers a deck without metadata and supplies placeholders", () => {

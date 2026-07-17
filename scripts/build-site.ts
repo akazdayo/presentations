@@ -11,6 +11,7 @@ import {
   artifactPath,
   buildPresentationForSite,
   findPresentation,
+  presentationIndex,
   presentations,
   repositoryRoot,
   type Presentation,
@@ -19,6 +20,9 @@ import {
 const site = join(repositoryRoot, "_site");
 const flakeRef = process.env.FLAKE_REF ?? `path:${repositoryRoot}`;
 const pagesBasePath = (process.env.PAGES_BASE_PATH ?? "").replace(/\/+$/, "");
+const siteBaseUrl = (
+  process.env.PAGES_BASE_URL ?? "https://akazdayo.github.io/presentations"
+).replace(/\/+$/, "");
 const buildShaPath = join(site, ".build-sha");
 const buildInputHashPath = join(site, ".build-input-hash");
 const routesPath = join(site, ".presentation-routes.json");
@@ -165,7 +169,18 @@ ${presentations.map((presentation) => `      ${indexLink(presentation)}`).join("
 `;
 
   writeFileSync(join(site, "index.html"), html);
+  writePresentationsJson();
   console.log(`Generated ${join(site, "index.html")}`);
+}
+
+function writePresentationsJson(): void {
+  const directory = join(site, ".well-known");
+  mkdirSync(directory, { recursive: true });
+  writeFileSync(
+    join(directory, "presentations.json"),
+    `${JSON.stringify(presentationIndex(presentations, siteBaseUrl), null, 2)}\n`,
+  );
+  console.log(`Generated ${join(directory, "presentations.json")}`);
 }
 
 function verifyArtifacts(expected: Presentation[]): void {

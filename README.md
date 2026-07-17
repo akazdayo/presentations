@@ -54,6 +54,8 @@ just build-site
 ```
 
 成果物は `_site/` に生成されます。Slidev 7件とMarp 1件は静的Webページ、Typst 3件はPDFとして出力されます。
+同時に `/.well-known/presentations.json` へ、各資料の公開URL・タイトル・日程を配列として生成します。
+公開URLのベースを変更する場合は `PAGES_BASE_URL` 環境変数を指定してください。
 
 ## GitHub Pages
 
