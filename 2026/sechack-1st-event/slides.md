@@ -88,7 +88,7 @@ layout: two-cols
 ::right::
 
 <img
-  src="./assets/existing-method.png"
+  src="../../shared/diagrams/sechack-nix-binary-cache/existing-method.png"
   alt="現在のBinary Cacheの仕組み"
   class="mx-auto max-h-[300px] max-w-full object-contain"
 />
@@ -118,7 +118,7 @@ layout: two-cols
 ::right::
 
 <img
-  src="./assets/proposed-method.png"
+  src="../../shared/diagrams/sechack-nix-binary-cache/proposed-method.png"
   alt="複数の独立したビルド結果を用いた提案手法"
   class="mx-auto max-h-[300px] max-w-full object-contain"
 />

@@ -67,7 +67,7 @@
           #v(0.5mm)
           #align(center)[
             #image(
-              "../assets/existing-method.png",
+              "../../../shared/diagrams/sechack-nix-binary-cache/existing-method.png",
               width: 85%,
             )
           ]
@@ -99,7 +99,7 @@
           #v(0.5mm)
           #align(center)[
             #image(
-              "../assets/proposed-method.png",
+              "../../../shared/diagrams/sechack-nix-binary-cache/proposed-method.png",
               width: 100%,
             )
           ]
