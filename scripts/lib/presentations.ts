@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 export const repositoryRoot = join(import.meta.dir, "../..");
+const localFlakeRef = ".";
 
 export type PresentationKind = "slidev" | "marp" | "typst";
 
@@ -323,7 +324,7 @@ const typstBackend: PresentationBackend<TypstPresentation> = {
       "nix",
       [
         "run",
-        `path:.#watch-${presentation.target}`,
+        `${localFlakeRef}#watch-${presentation.target}`,
         "--",
         join(repositoryRoot, artifactPath(presentation)),
       ],
@@ -335,7 +336,7 @@ const typstBackend: PresentationBackend<TypstPresentation> = {
       "nix",
       [
         "run",
-        `path:.#build-${presentation.target}`,
+        `${localFlakeRef}#build-${presentation.target}`,
         "--",
         join(repositoryRoot, artifactPath(presentation)),
       ],

@@ -18,7 +18,7 @@ import {
 } from "./lib/presentations";
 
 const site = join(repositoryRoot, "_site");
-const flakeRef = process.env.FLAKE_REF ?? `path:${repositoryRoot}`;
+const flakeRef = process.env.FLAKE_REF ?? ".";
 const pagesBasePath = (process.env.PAGES_BASE_PATH ?? "").replace(/\/+$/, "");
 const siteBaseUrl = (
   process.env.PAGES_BASE_URL ?? "https://akazdayo.github.io/presentations"

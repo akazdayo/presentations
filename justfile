@@ -21,7 +21,7 @@ build-site:
 
 # Check the Nix flake and build all Typst posters.
 check:
-  nix flake check path:.
+  nix flake check .
 
 # Format every supported source file through treefmt.
 format:
