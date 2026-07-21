@@ -13,11 +13,13 @@ just list
 ```
 
 形式にかかわらず、カタログ名を指定して起動・ビルドできます。
-`dev` は現在 Slidev と Marp に対応しています。
+Typst の `dev` は Typix の watch を起動し、保存するたびに
+`poster/poster.pdf` を更新します。自動リロード対応の PDF ビューアーで開いてください。
 
 ```bash
 just dev nix-journey
 just dev nix-lt
+just dev post-2603
 just build nix-journey
 just build nix-lt
 just build post-2603

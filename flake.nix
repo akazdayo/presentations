@@ -119,34 +119,57 @@
         };
 
         typstSource = typixLib.cleanTypstSource ./.;
+        typstAssetSource = lib.cleanSourceWith {
+          src = ./.;
+          filter = path: type:
+            type
+            == "directory"
+            || (
+              let
+                sourcePath = toString path;
+              in
+                (lib.hasInfix "/poster/" sourcePath
+                  || lib.hasInfix "/shared/" sourcePath)
+                && builtins.any (suffix: lib.hasSuffix suffix sourcePath) [
+                  ".csv"
+                  ".gif"
+                  ".jpeg"
+                  ".jpg"
+                  ".json"
+                  ".png"
+                  ".svg"
+                  ".webp"
+                  ".yaml"
+                  ".yml"
+                ]
+            );
+        };
         src = lib.fileset.toSource {
           root = ./.;
           fileset = lib.fileset.unions [
             (lib.fileset.fromSource typstSource)
-            ./2026
-            ./shared
-            ./templates
+            (lib.fileset.fromSource typstAssetSource)
           ];
         };
 
         commonTypstArgs = {
-          inherit src;
           fontPaths = ["${pkgs.ipafont}/share/fonts"];
           typstOpts.root = ".";
           virtualPaths = [];
-          unstable_typstPackages = [
-            {
-              name = "zebra";
-              version = "0.1.0";
-              hash = "sha256-Z2rDhzO+MMVwHCQvOZClxmyzextcPvPR3zRw5PS2C7U=";
-            }
-            {
-              name = "mmdr";
-              version = "0.2.1";
-              hash = "sha256-RQQsoqftwanuqN6GglxymDcO2dBcoIgSzqHvIjm1GfA=";
-            }
-          ];
         };
+
+        unstable_typstPackages = [
+          {
+            name = "zebra";
+            version = "0.1.0";
+            hash = "sha256-Z2rDhzO+MMVwHCQvOZClxmyzextcPvPR3zRw5PS2C7U=";
+          }
+          {
+            name = "mmdr";
+            version = "0.2.1";
+            hash = "sha256-RQQsoqftwanuqN6GglxymDcO2dBcoIgSzqHvIjm1GfA=";
+          }
+        ];
 
         posterSources = {
           post-2603 = "2026/post-2603/poster/main.typ";
@@ -159,7 +182,7 @@
             _: typstSource:
               typixLib.buildTypstProject (
                 commonTypstArgs
-                // {inherit typstSource;}
+                // {inherit src typstSource unstable_typstPackages;}
               )
           )
           posterSources;
@@ -169,7 +192,20 @@
             _: typstSource:
               typixLib.buildTypstProjectLocal (
                 commonTypstArgs
-                // {inherit typstSource;}
+                // {inherit src typstSource unstable_typstPackages;}
+              )
+          )
+          posterSources;
+
+        posterWatchScripts =
+          lib.mapAttrs (
+            name: typstSource:
+              typixLib.watchTypstProject (
+                commonTypstArgs
+                // {
+                  inherit typstSource;
+                  scriptName = "typst-watch-${name}";
+                }
               )
           )
           posterSources;
@@ -189,7 +225,12 @@
             name = "build-${name}";
             value = flake-utils.lib.mkApp {drv = value;};
           })
-          posterBuildScripts;
+          posterBuildScripts
+          // lib.mapAttrs' (name: value: {
+            name = "watch-${name}";
+            value = flake-utils.lib.mkApp {drv = value;};
+          })
+          posterWatchScripts;
 
         checks =
           lib.mapAttrs' (name: value: {
@@ -204,10 +245,12 @@
 
         formatter = treefmtEval.config.build.wrapper;
 
-        devShells.default = pkgs.mkShell {
-          inherit (preCommitCheck) shellHook;
+        devShells.default = typixLib.devShell {
+          inherit (commonTypstArgs) fontPaths virtualPaths;
+          extraShellHook = preCommitCheck.shellHook;
           packages =
             preCommitCheck.enabledPackages
+            ++ builtins.attrValues posterWatchScripts
             ++ [
               treefmtEval.config.build.wrapper
               pkgs.bun
@@ -218,7 +261,6 @@
               pkgs.noto-fonts-cjk-sans
               pkgs.noto-fonts-color-emoji
               pkgs.terraform
-              pkgs.typst
             ];
         };
       }

@@ -318,6 +318,18 @@ const marpBackend: PresentationBackend<
 };
 
 const typstBackend: PresentationBackend<TypstPresentation> = {
+  dev(presentation) {
+    run(
+      "nix",
+      [
+        "run",
+        `path:.#watch-${presentation.target}`,
+        "--",
+        join(repositoryRoot, artifactPath(presentation)),
+      ],
+      repositoryRoot,
+    );
+  },
   build(presentation) {
     run(
       "nix",
@@ -365,12 +377,6 @@ export function findPresentation(name: string): Presentation {
 }
 
 export function devPresentation(presentation: Presentation): void {
-  if (presentation.kind === "typst") {
-    throw new Error(
-      `Development mode is not supported for ${presentation.name} (Typst)`,
-    );
-  }
-
   presentationBackends[presentation.kind].dev?.(presentation);
 }
 
