@@ -106,6 +106,15 @@ Binary Cacheは「ビルド時間」を短縮できる一方で、**ビルド結
   - Chrome入れたと思ったらChromiumだった！？！？！は嫌
 
 ---
+layout: center
+---
+
+# Nixの利用者はBinary Cacheをセルフホストしている
+
+- みんなで同じキャッシュサーバーを使えば良くない
+- でも、それをやるなら信頼性の問題が発生する
+
+---
 layout: two-cols
 ---
 
