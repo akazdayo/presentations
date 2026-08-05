@@ -2,37 +2,37 @@
 #import "components.typ": *
 
 #set page(
-  paper: "a4",
-  margin: (x: 4.5mm, y: 4mm),
+  paper: "a0",
+  margin: (x: 18mm, y: 16mm),
 )
 
 #set text(
   font: "IPAGothic",
-  size: 9pt,
+  size: 36pt,
   fill: rgb("#222222"),
 )
 
 #set par(justify: false, leading: 0.54em)
 #set heading(numbering: none)
 
-#block(inset: (x: 1mm, y: 0mm))[
+#block(inset: (x: 4mm, y: 0mm))[
   #grid(
-    columns: (1fr, 31mm),
-    column-gutter: 2mm,
+    columns: (1fr, 124mm),
+    column-gutter: 8mm,
     align: (left, top),
     [
       #text(
-        size: 18pt,
+        size: 72pt,
         weight: "bold",
-        tracking: -0.15pt,
+        tracking: -0.6pt,
       )[
         複数ビルド結果を用いた#linebreak()
         Nix Binary Cacheの信頼性評価
       ]
-      #v(0.8mm)
-      #text(size: 11pt, weight: "bold")[野田蒼馬]
-      #h(1.5mm)
-      #text(size: 9.5pt, fill: muted)[N高等学校二年生]
+      #v(3.2mm)
+      #text(size: 44pt, weight: "bold")[野田蒼馬]
+      #h(6mm)
+      #text(size: 38pt, fill: muted)[N高等学校二年生]
     ],
     [
       #align(center)[
@@ -40,10 +40,10 @@
           "https://github.com/akazdayo/reproductive-nix-cache",
           quiet-zone: true,
           background-fill: white,
-          width: 18mm,
+          width: 72mm,
         )
-        #v(0.5mm)
-        #text(size: 7.4pt, weight: "bold", fill: muted)[
+        #v(2mm)
+        #text(size: 29.6pt, weight: "bold", fill: muted)[
           #link("https://github.com/akazdayo/reproductive-nix-cache")[
             実装・検証コード（GitHub）
           ]
@@ -52,13 +52,13 @@
     ],
   )
 
-  #v(0.6mm)
+  #v(2.4mm)
   #rule()
-  #v(0.6mm)
+  #v(2.4mm)
 
   #grid(
     columns: (1fr, 1fr),
-    column-gutter: 2mm,
+    column-gutter: 8mm,
     align: (left, top),
     [
       #section(
@@ -88,7 +88,7 @@
         [現行の信頼モデルと課題],
         [
           Binary Cacheは、あらかじめビルドされた成果物を署名と共にサーバーへ保存する仕組みである。利用者は自分でビルドせずに成果物をダウンロードできるため、ビルド時間を大幅に短縮できる。ただし、成果物の正当性は主に#key[Cache運営者の署名鍵を信頼]して判断することになる。
-          #v(0.8mm)
+          #v(3.2mm)
           #diagram(
             1,
             [署名鍵を基準とする現行の信頼モデル],
@@ -96,7 +96,7 @@
             width: 82%,
             note: [A〜CはCache配布者。利用者は取得後、署名者が信頼リストに含まれるかを検証する。],
           )
-          #v(0.5mm)
+          #v(2mm)
           現行の信頼モデルには以下のような課題がある。
           - 信頼判断が鍵単位の「信頼する・しない」に限られる
           - 署名鍵が侵害されると、不正な成果物も正当と判断され得る
@@ -111,7 +111,7 @@
         [
           Binary Cacheの成果物を署名鍵だけに頼らず評価するため、#linebreak()
           #key[複数のコンピュータで再ビルド]して結果を記録する。その際、ビルド環境・入力・出力などの実行証拠を記録し、出力の一致数や証拠の独立性から#key[信頼スコア]を算出する。これによって、小規模・個人運営のCacheも安心して使える環境を目指す。
-          #v(0.8mm)
+          #v(3.2mm)
           #diagram(
             2,
             [複数のビルド証拠を用いる提案モデル],
@@ -119,7 +119,7 @@
             width: 88%,
             note: [A〜Cは独立した検証者。出力ハッシュと実行証拠を蓄積し、利用者が取得前に評価する。],
           )
-          #v(0.5mm)
+          #v(2mm)
           以下をスコアリング指標として検討しているが、現状はまだ固まっていない。
           - 出力の一致性
             - 同じ入力から、同じ出力が出された数
