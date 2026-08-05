@@ -22,17 +22,17 @@
     align: (left, top),
     [
       #text(
-        size: 20pt,
+        size: 18pt,
         weight: "bold",
         tracking: -0.15pt,
       )[
         複数ビルド結果を用いた#linebreak()
         Nix Binary Cacheの信頼性評価
       ]
-      #v(1.4mm)
-      #text(size: 11.5pt, weight: "bold")[野田蒼馬]
-      #h(2mm)
-      #text(size: 10pt, fill: muted)[N高等学校二年生]
+      #v(0.8mm)
+      #text(size: 11pt, weight: "bold")[野田蒼馬]
+      #h(1.5mm)
+      #text(size: 9.5pt, fill: muted)[N高等学校二年生]
     ],
     [
       #align(center)[
@@ -52,9 +52,9 @@
     ],
   )
 
-  #v(1mm)
+  #v(0.6mm)
   #rule()
-  #v(1mm)
+  #v(0.6mm)
 
   #grid(
     columns: (1fr, 1fr),
