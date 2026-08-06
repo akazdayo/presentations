@@ -31,15 +31,15 @@
   inset: (x: 4.8mm, y: 1.6mm),
 )[
   #text(
-    size: 56pt,
+    size: if level == 1 { 56pt } else { 46pt },
     weight: "bold",
   )[
-    #heading-prefix(number) #h(4mm) #title
+    #heading-prefix(number) #h(if level == 1 { 4mm } else { 3mm }) #title
   ]
-  #v(-7.2mm)
+  #v(if level == 1 { -7.2mm } else { -5.2mm })
   #if level == 1 {
     rule()
   }
-  #v(if level == 1 { 4mm } else { 3.2mm })
+  #v(if level == 1 { 4mm } else { 2.4mm })
   #body
 ]
