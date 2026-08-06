@@ -18,22 +18,22 @@
 
 #block(inset: (x: 4mm, y: 0mm))[
   #grid(
-    columns: (1fr, 124mm),
+    columns: (1fr, 104mm),
     column-gutter: 8mm,
     align: (left, top),
     [
       #text(
-        size: 72pt,
+        size: 64pt,
         weight: "bold",
         tracking: -0.6pt,
       )[
         複数ビルド結果を用いた#linebreak()
         Nix Binary Cacheの信頼性評価
       ]
-      #v(3.2mm)
-      #text(size: 44pt, weight: "bold")[野田蒼馬]
-      #h(6mm)
-      #text(size: 38pt, fill: muted)[N高等学校二年]
+      #v(2mm)
+      #text(size: 40pt, weight: "bold")[野田蒼馬]
+      #h(5mm)
+      #text(size: 34pt, fill: muted)[N高等学校二年]
     ],
     [
       #align(center)[
@@ -41,10 +41,10 @@
           "https://github.com/akazdayo/reproductive-nix-cache",
           quiet-zone: true,
           background-fill: white,
-          width: 72mm,
+          width: 56mm,
         )
-        #v(2mm)
-        #text(size: 29.6pt, weight: "bold", fill: muted)[
+        #v(1.2mm)
+        #text(size: 26pt, weight: "bold", fill: muted)[
           #link("https://github.com/akazdayo/reproductive-nix-cache")[
             実装・検証コード（GitHub）
           ]
@@ -53,9 +53,9 @@
     ],
   )
 
-  #v(2.4mm)
+  #v(1.6mm)
   #rule()
-  #v(2.4mm)
+  #v(1.6mm)
 
   #grid(
     columns: (1fr, 1fr),
@@ -105,15 +105,17 @@
         2,
         [現行の信頼モデルと課題],
         [
-          #text(
-            size: 43.2pt,
-            weight: "bold",
-            fill: rgb("#c62828"),
-            stroke: 0.8pt + rgb("#c62828"),
-          )[現行の信頼モデルには以下のような課題がある。]
-          - 信頼判断が鍵単位の「信頼する・しない」に限られる
-          - 署名鍵が侵害されると、不正な成果物も正当と判断され得る
-          - 利用実績のある#key[大規模なCacheへ信頼が集中]する
+          #block(
+            width: 100%,
+            inset: (x: 3mm, y: 2.4mm),
+            stroke: 2.4pt + rgb("#c62828"),
+            radius: 2mm,
+          )[
+            #strong[現行の信頼モデルには以下のような課題がある。]
+            - 信頼判断が鍵単位の「信頼する・しない」に限られる
+            - 署名鍵が侵害されると、不正な成果物も正当と判断され得る
+            - 利用実績のある#key[大規模なCacheへ信頼が集中]する
+          ]
           #v(2mm)
           Binary Cacheは、あらかじめビルドされた成果物を署名と共にサーバーへ保存する仕組みである。利用者は自分でビルドせずに成果物をダウンロードできるため、ビルド時間を大幅に短縮できる。ただし、成果物の正当性は主に#key[Cache運営者の署名鍵を信頼]して判断することになる。
           #v(3.2mm)
@@ -181,7 +183,7 @@
         [
           利用者が確かめたいのは、#key[指定した入力に対応する成果物]である。たとえばGoogle Chromeを導入しようとしたのに、Chromiumへすり替えられるのは困る。
 
-          本研究はマルウェア判定ではなく、#key[指定した入力から得られるはずの成果物との一致]を確かめる。マルウェア検出はVirusTotalなどの専用サービスに任せる方が効率的で現実的な可能性が高い。
+          本研究はマルウェア判定ではなく、#key[指定した入力から得られるはずの成果物との一致]を検証する。マルウェア検出はVirusTotalなどの専用サービスに任せる方が効率的で現実的な可能性が高い。
         ],
       )
 
@@ -198,6 +200,22 @@
             - 証拠を再利用・複製し、独立した証拠数を水増しする。
         ],
       )
+
+      #block(
+        width: 100%,
+        inset: (x: 4.8mm, y: 0.6mm),
+      )[
+        #text(size: 24pt)[#strong[参考文献]]
+        #v(0.5mm)
+        #text(size: 20pt)[
+          #set par(leading: 0.16em)
+          \[1\] A. Hoese, “Trustix: Distributed Trust and Reproducibility Tracking for Binary Caches,” Tweag, 2020.
+          #linebreak()
+          \[2\] J. Malka and A. Engelen, “Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model,” Proc. MSR ’26, 2026. doi: 10.1145/3793302.3793328.
+          #linebreak()
+          \[3\] D. Hugenroth, M. Lins, R. Mayrhofer, and A. R. Beresford, “Attestable Builds: Compiling Verifiable Binaries on Untrusted Systems Using Trusted Execution Environments,” Proc. ACM CCS ’25, pp. 4514–4528, 2025. doi: 10.1145/3719027.3765128.
+        ]
+      ]
     ],
   )
 ]
