@@ -202,21 +202,23 @@
         ],
       )
 
-      #block(
-        width: 100%,
-        inset: (x: 4.8mm, y: 0.6mm),
-      )[
-        #text(size: 24pt)[#strong[参考文献]]
-        #v(0.5mm)
-        #text(size: 20pt)[
-          #set par(leading: 0.16em)
-          \[1\] A. Hoese, “Trustix: Distributed Trust and Reproducibility Tracking for Binary Caches,” Tweag, 2020.
-          #linebreak()
-          \[2\] J. Malka and A. Engelen, “Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model,” Proc. MSR ’26, 2026. doi: 10.1145/3793302.3793328.
-          #linebreak()
-          \[3\] D. Hugenroth, M. Lins, R. Mayrhofer, and A. R. Beresford, “Attestable Builds: Compiling Verifiable Binaries on Untrusted Systems Using Trusted Execution Environments,” Proc. ACM CCS ’25, pp. 4514–4528, 2025. doi: 10.1145/3719027.3765128.
-        ]
-      ]
     ],
   )
+
+  #v(1.6mm)
+  #block(
+    width: 100%,
+    inset: (x: 4.8mm, y: 0.6mm),
+  )[
+    #text(size: 24pt)[#strong[参考文献]]
+    #v(0.5mm)
+    #text(size: 20pt)[
+      #set par(leading: 0.16em)
+      \[1\] A. Hoese, “Trustix: Distributed Trust and Reproducibility Tracking for Binary Caches,” Tweag, 2020.
+      #linebreak()
+      \[2\] J. Malka and A. Engelen, “Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model,” Proc. MSR ’26, 2026. doi: 10.1145/3793302.3793328.
+      #linebreak()
+      \[3\] D. Hugenroth, M. Lins, R. Mayrhofer, and A. R. Beresford, “Attestable Builds: Compiling Verifiable Binaries on Untrusted Systems Using Trusted Execution Environments,” Proc. ACM CCS ’25, pp. 4514–4528, 2025. doi: 10.1145/3719027.3765128.
+    ]
+  ]
 ]
