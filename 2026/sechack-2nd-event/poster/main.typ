@@ -164,7 +164,7 @@
           Binary Cacheの成果物を署名鍵だけに頼らず評価するため、#key[複数のコンピュータでビルド]を実行し、その結果をサーバーに記録する。
 
           ビルドの際、現状は以下の手法を用いて#key[実行したことの証拠]を実装できると考えている。
-          - CPUにおけるTrusted Execution Environmentを用いた実行証明
+          - CPUにおけるTEE(Trusted Execution Environment)を用いた実行証明
           - Commit-Reveal
             - Commit = SHA256(ビルド証拠 && Salt)
           #v(3.2mm)

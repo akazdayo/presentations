@@ -13,11 +13,13 @@
   width: 100%,
   breakable: false,
 )[
-  #text(
-    size: 36.8pt,
-    weight: "bold",
-    fill: border,
-  )[#("図" + str(number))　#title]
+  #align(center)[
+    #text(
+      size: 36.8pt,
+      weight: "bold",
+      fill: border,
+    )[#("図" + str(number))　#title]
+  ]
   #v(2.8mm)
   #align(center)[#image(path, width: width)]
   #if note != none {
