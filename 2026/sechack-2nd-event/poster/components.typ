@@ -5,7 +5,7 @@
 
 #let heading-prefix(number) = [#number.]
 
-#let key(body) = text(weight: "bold")[
+#let key(body) = text(weight: "bold", stroke: 0.8pt + border)[
   #underline(stroke: 2.8pt + border, body)
 ]
 
