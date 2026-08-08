@@ -61,6 +61,8 @@ jobs:
 
       - name: Download previous site
         if: steps.previous_site.outputs.run_id != ''
+        id: previous_site_download
+        continue-on-error: true
         uses: actions/download-artifact@v5
         with:
           pattern: site-*
@@ -70,7 +72,9 @@ jobs:
           run-id: ${{ steps.previous_site.outputs.run_id }}
 
       - name: Record previous site revision
-        if: steps.previous_site.outputs.head_sha != ''
+        if: >-
+          steps.previous_site_download.outcome == 'success' &&
+          steps.previous_site.outputs.head_sha != ''
         run: echo "${{ steps.previous_site.outputs.head_sha }}" > _site/.build-sha
 
       - name: Plan incremental build
