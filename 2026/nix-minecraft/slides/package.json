@@ -7,6 +7,8 @@
     "dev": "slidev --open"
   },
   "dependencies": {
+    "@iconify-json/logos": "^1.2.11",
+    "@iconify-json/simple-icons": "^1.2.86",
     "@slidev/cli": "52.17.0",
     "@slidev/theme-apple-basic": "^0.25.1",
     "@slidev/theme-default": "latest",
