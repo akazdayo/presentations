@@ -1,4 +1,5 @@
 #import "@preview/zebra:0.1.0": qrcode
+#import "@preview/mmdr:0.2.1": mermaid-svg
 #import "components.typ": *
 
 #set page(
@@ -172,10 +173,30 @@
                       size: 36.8pt,
                       weight: "bold",
                       fill: border,
-                    )[図3　構成イメージ]
+                    )[図3　Commit-Reveal の検証フロー]
                     #v(2.8mm)
                     #image(
-                      "../assets/proxy-cache-builder-concept.png",
+                      bytes(
+                        mermaid-svg(
+                          "sequenceDiagram\n"
+                            + "    participant A as Builder A\n"
+                            + "    participant B as Builder B\n"
+                            + "    participant C as Coordinator\n"
+                            + "\n"
+                            + "    A->>C: Commit: H(result + nonce)\n"
+                            + "    B->>C: Commit: H(result + nonce)\n"
+                            + "\n"
+                            + "    Note over A,C: All commits received\n"
+                            + "\n"
+                            + "    A->>C: Reveal: result + nonce\n"
+                            + "    B->>C: Reveal: result + nonce\n"
+                            + "\n"
+                            + "    C->>C: H(result + nonce) == hash ?\n"
+                            + "    C->>C: Compare results\n",
+                          layout: (node_spacing: 28),
+                        ),
+                      ),
+                      format: "svg",
                       width: 100%,
                     )
                   ]
