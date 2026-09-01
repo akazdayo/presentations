@@ -154,11 +154,32 @@
               - Commit-Revealによる#key[後追い提出の抑止]
                 - Commit = SHA256(ビルド証拠 && Salt)
               #v(3mm)
-              #diagram(
-                2,
-                [複数のビルド証拠を用いる提案モデル],
-                "../../../shared/diagrams/sechack-nix-binary-cache/proposed-method.png",
-                width: 76%,
+              #grid(
+                columns: (1fr, 1fr),
+                column-gutter: 5mm,
+                align: (left, top),
+                [
+                  #diagram(
+                    2,
+                    [複数のビルド証拠を用いる提案モデル],
+                    "../../../shared/diagrams/sechack-nix-binary-cache/proposed-method.png",
+                    width: 100%,
+                  )
+                ],
+                [
+                  #align(center)[
+                    #text(
+                      size: 36.8pt,
+                      weight: "bold",
+                      fill: border,
+                    )[図3　構成イメージ]
+                    #v(2.8mm)
+                    #image(
+                      "../assets/proxy-cache-builder-concept.png",
+                      width: 100%,
+                    )
+                  ]
+                ],
               )
             ],
             level: 2,
