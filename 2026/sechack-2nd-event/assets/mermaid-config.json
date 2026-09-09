@@ -1,0 +1,20 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#ffffff",
+    "primaryBorderColor": "#222222",
+    "primaryTextColor": "#222222",
+    "lineColor": "#222222",
+    "actorBkg": "#ffffff",
+    "actorBorder": "#222222",
+    "actorTextColor": "#222222",
+    "actorLineColor": "#777777",
+    "signalColor": "#222222",
+    "signalTextColor": "#222222",
+    "noteBkgColor": "#eef4fb",
+    "noteBorderColor": "#6d8fbe",
+    "noteTextColor": "#222222",
+    "fontFamily": "IPAGothic, sans-serif",
+    "fontSize": "16px"
+  }
+}

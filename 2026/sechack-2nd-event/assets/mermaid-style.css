@@ -1,0 +1,36 @@
+#my-svg {
+  font-family: "IPAGothic", sans-serif !important;
+  color: #222222 !important;
+}
+
+#my-svg .actor,
+#my-svg rect.actor {
+  fill: #ffffff !important;
+  stroke: #222222 !important;
+}
+
+#my-svg .actor-line {
+  stroke: #777777 !important;
+}
+
+#my-svg .actor-box,
+#my-svg .messageText,
+#my-svg .noteText {
+  fill: #222222 !important;
+}
+
+#my-svg .messageLine0,
+#my-svg .messageLine1 {
+  stroke: #222222 !important;
+  fill: none !important;
+}
+
+#my-svg [id$="-arrowhead"] path {
+  stroke: #222222 !important;
+  fill: #222222 !important;
+}
+
+#my-svg .note {
+  fill: #eef4fb !important;
+  stroke: #6d8fbe !important;
+}

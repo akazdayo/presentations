@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant A as ビルドサーバー A
+    participant B as ビルドサーバー B
+    participant C as ラウンドサーバー
+
+    A->>C: コミット: SHA256(ビルド結果 + nonce)
+    B->>C: コミット: SHA256(ビルド結果 + nonce)
+
+    Note over A,C: すべてのコミットを受信
+
+    A->>C: 開示: ビルド結果 + nonce
+    B->>C: 開示: ビルド結果 + nonce
+
+    C->>C: SHA256(ビルド結果 + nonce) == ハッシュ？
+    C->>C: ビルド結果を比較

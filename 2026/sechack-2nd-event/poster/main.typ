@@ -1,5 +1,4 @@
 #import "@preview/zebra:0.1.0": qrcode
-#import "@preview/mmdr:0.2.1": mermaid-svg
 #import "components.typ": *
 
 #set page(
@@ -73,9 +72,9 @@
         "1.1",
         [Nixとは],
         [
-          Nixは、同じ入力から同じビルド結果を得ることを重視したパッケージ管理・ビルドシステムである。Nixを使用したNixOSでは、OSの設定や導入するソフトウェアをコードとして管理でき、同じ設定から同等の環境を再構築できる。
+          Nixは、同じ入力から同じビルド結果を得ることを重視したパッケージ管理・ビルドシステムである。
 
-          この再現性を高めるため、Nixは外部環境の影響を抑えたサンドボックス内でビルドを行う。しかし、依存するソフトウェアも含めてビルドするため、処理に長い時間がかかり、ディスク容量も消費する。
+          この再現性を高めるため、Nixは外部環境の影響を抑えたサンドボックス内でビルドを行う。処理に長い時間がかかり、ディスク容量も消費する。
 
           そこでNixでは、あらかじめビルドされた成果物を取得できる#key[Binary Cache]が利用される。
         ],
@@ -149,11 +148,17 @@
                 ]を実行し、その結果をサーバーに記録する。
               ]
 
-              現状は以下の手法を組み合わせることを考えている。
+              以下の手法を組み合わせ、信頼性を確保できる可能性を考えている。
               - TEE(Trusted Execution Environment)による#key[実行証明]
-                - 入力・ビルド環境・出力を結びつける
-              - Commit-Revealによる#key[後追い提出の抑止]
-                - Commit = SHA256(ビルド証拠 && Salt)
+              - Commit-Revealによる#key[後追い提出の抑止] (図3)
+
+              キャッシュ追加のフローは以下である。
+              1. (ラウンドサーバー): 購読するビルドサーバーに対して特定のパッケージのビルドを指示
+              2. (ビルドサーバー): 対象のパッケージのビルドを実行。
+              3. (ビルドサーバー): SHA256(ビルド結果&&nonce)を計算し、ハッシュを公開する
+              4. (ラウンドサーバー): 十分なコミット数が集まったら、revealフェーズを開始する
+              5. (ビルドサーバー): ハッシュの中身を公開する
+              6. (ラウンドサーバー): reveal前と後で計算の辻褄が合うかを検証する
               #v(3mm)
               #grid(
                 columns: (1fr, 1fr),
@@ -163,7 +168,7 @@
                   #diagram(
                     2,
                     [複数のビルド証拠を用いる提案モデル],
-                    "../../../shared/diagrams/sechack-nix-binary-cache/proposed-method.png",
+                    "../assets/proposed-method-v2.png",
                     width: 100%,
                   )
                 ],
@@ -176,32 +181,25 @@
                     )[図3　Commit-Reveal の検証フロー]
                     #v(2.8mm)
                     #image(
-                      bytes(
-                        mermaid-svg(
-                          "sequenceDiagram\n"
-                            + "    participant A as Builder A\n"
-                            + "    participant B as Builder B\n"
-                            + "    participant C as Coordinator\n"
-                            + "\n"
-                            + "    A->>C: Commit: H(result + nonce)\n"
-                            + "    B->>C: Commit: H(result + nonce)\n"
-                            + "\n"
-                            + "    Note over A,C: All commits received\n"
-                            + "\n"
-                            + "    A->>C: Reveal: result + nonce\n"
-                            + "    B->>C: Reveal: result + nonce\n"
-                            + "\n"
-                            + "    C->>C: H(result + nonce) == hash ?\n"
-                            + "    C->>C: Compare results\n",
-                          layout: (node_spacing: 28),
-                        ),
-                      ),
-                      format: "svg",
+                      "../assets/commit-reveal-flow.svg",
                       width: 100%,
                     )
                   ]
                 ],
               )
+              #v(3mm)
+              #align(center)[
+                #text(
+                  size: 36.8pt,
+                  weight: "bold",
+                  fill: border,
+                )[図4　ラウンドにおけるビルダーの関係]
+                #v(2.8mm)
+                #image(
+                  "../assets/round-2-builder-graph.png",
+                  width: 45%,
+                )
+              ]
             ],
             level: 2,
           )
@@ -236,7 +234,6 @@
             ],
             level: 2,
           )
-
         ],
       )
     ],
