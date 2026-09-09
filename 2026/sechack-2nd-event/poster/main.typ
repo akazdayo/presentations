@@ -129,6 +129,22 @@
           )
         ],
       )
+
+      #block(
+        width: 100%,
+        inset: (x: 4.8mm, y: 0.6mm),
+      )[
+        #text(size: 24pt)[#strong[参考文献]]
+        #v(0.5mm)
+        #text(size: 20pt)[
+          #set par(leading: 0.16em)
+          \[1\] A. Hoese, “Trustix: Distributed Trust and Reproducibility Tracking for Binary Caches,” Tweag, 2020.
+          #linebreak()
+          \[2\] J. Malka and A. Engelen, “Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model,” Proc. MSR ’26, 2026. doi: 10.1145/3793302.3793328.
+          #linebreak()
+          \[3\] D. Hugenroth, M. Lins, R. Mayrhofer, and A. R. Beresford, “Attestable Builds: Compiling Verifiable Binaries on Untrusted Systems Using Trusted Execution Environments,” Proc. ACM CCS ’25, pp. 4514–4528, 2025. doi: 10.1145/3719027.3765128.
+        ]
+      ]
     ],
     [
       #section(
@@ -152,13 +168,6 @@
               - TEE(Trusted Execution Environment)による#key[実行証明]
               - Commit-Revealによる#key[後追い提出の抑止] (図3)
 
-              キャッシュ追加のフローは以下である。
-              1. (ラウンドサーバー): 購読するビルドサーバーに対して特定のパッケージのビルドを指示
-              2. (ビルドサーバー): 対象のパッケージのビルドを実行。
-              3. (ビルドサーバー): SHA256(ビルド結果&&nonce)を計算し、ハッシュを公開する
-              4. (ラウンドサーバー): 十分なコミット数が集まったら、revealフェーズを開始する
-              5. (ビルドサーバー): ハッシュの中身を公開する
-              6. (ラウンドサーバー): reveal前と後で計算の辻褄が合うかを検証する
               #v(3mm)
               #grid(
                 columns: (1fr, 1fr),
@@ -234,25 +243,27 @@
             ],
             level: 2,
           )
+
+          #section(
+            4,
+            [いただいた質問],
+            [
+              #text(size: 22pt)[
+                #set par(leading: 0.3em)
+                - Q. インセンティブはどうする？一旦技術だけ考えて発表する？目標は？
+                  - A. OSSのコミュニティってなんのインセンティブもない行為を普通にやってくれたりするので、やってみないとわからない。特にTor Projectとか。
+                - Q. これって本当に分散してる？
+                  - A. データを配る人に対しての信頼が発生せず、配られたものを検証できる形なのであれば実質的に分散していると言えるはず。
+                - Q. 誰でも参加できるネットワークじゃなくて、信頼できる学術機関とかに限定した方がいいのでは？
+                  - A. Trustixという先行事例ではそのアプローチを取っている。結局信頼が提供者に発生してしまう。
+                - Q. 証拠に基づく信頼のグラデーションの意味がよくわからない
+                  - A. 鍵を信頼するとした時、利用者の多さなどしか検討の余地がないが、このアプローチを用いることで合意数などの検討のグラデーションの幅が増えるはず。
+              ]
+            ],
+            level: 2,
+          )
         ],
       )
     ],
   )
-
-  #v(1.6mm)
-  #block(
-    width: 100%,
-    inset: (x: 4.8mm, y: 0.6mm),
-  )[
-    #text(size: 24pt)[#strong[参考文献]]
-    #v(0.5mm)
-    #text(size: 20pt)[
-      #set par(leading: 0.16em)
-      \[1\] A. Hoese, “Trustix: Distributed Trust and Reproducibility Tracking for Binary Caches,” Tweag, 2020.
-      #linebreak()
-      \[2\] J. Malka and A. Engelen, “Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model,” Proc. MSR ’26, 2026. doi: 10.1145/3793302.3793328.
-      #linebreak()
-      \[3\] D. Hugenroth, M. Lins, R. Mayrhofer, and A. R. Beresford, “Attestable Builds: Compiling Verifiable Binaries on Untrusted Systems Using Trusted Execution Environments,” Proc. ACM CCS ’25, pp. 4514–4528, 2025. doi: 10.1145/3719027.3765128.
-    ]
-  ]
 ]
