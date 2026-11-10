@@ -69,3 +69,19 @@ Binary Cacheの成果物を署名鍵だけに頼らず評価するため、**複
   - TEEの脆弱性を悪用し、不正な成果物を正当と偽る。
 - 証拠のリプレイ
   - 証拠を再利用・複製し、独立した証拠数を水増しする。
+
+## 6. 実験：sandbox有効時のビルド再現性
+
+同じderivationを複数の環境でビルドしたとき、成果物のハッシュが一致するかを調べた。同一ホスト上に独立した `/nix/store` を持つ3コンテナを用意し、OS userspace、UID、タイムゾーン、locale、hostname、umask、CPU数とビルド並列数を変えた。Aは `nixos/nix` の最小環境（完全なNixOSではない）、BはDebian 13.1 slim、CはFedora 43を使用した。
+
+Nix 2.31.2、x86_64、nixpkgs revision `c043004d1c6985732bcc1cbc5a9c9aecbbb4e0f0` と対象derivationを固定し、全環境で `sandbox=true` を設定した。依存のみBinary Cacheから取得し、対象はsubstitutionとremote builderを無効にして全outputをソースビルドした。
+
+対象はhello 2.12.3、jq 1.8.2、ripgrep 15.2.0、OpenSSL 3.6.3、Git 2.55.0の5パッケージ、計16 output。`nix-store --dump` で得たcanonical NARのSHA-256を比較し、`nix path-info` の `narHash` とも全件一致を確認した。
+
+**sandbox有効時は16 outputすべてが3環境で一致した。** 全対象のビルドが成功し、ビルドログでは全環境で `/build` の使用を確認した。
+
+Docker内でNix sandboxを成立させるため、コンテナを一時的に `--privileged --user root` で起動し、元の各UIDからroot Nix daemonへ接続した。`sandbox-fallback=false` とビルドログの `/build` 使用、全対象の正常終了により実際のsandbox実行を確認した。
+
+ただし、**5パッケージ・各環境1回の実行に限る**。kernelやCPUモデルなどを同一ホストで共有しているため、独立物理ビルダーでの一致やnixpkgs全体の再現性を示す結果ではない。今後はpackage/output単位の検証を広げ、複数回試行と独立物理ビルダーで追試する。
+
+出典：[Nix derivation output reproducibility experiment: sandbox=true（固定版）](https://gist.githubusercontent.com/akazdayo/a87c9cf9ef428c442bc2aea088952588/raw/ebb4d23861f75eab1dd16b272e945f122bad86b4/sandbox.md)

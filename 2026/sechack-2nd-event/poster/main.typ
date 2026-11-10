@@ -27,8 +27,8 @@
         weight: "bold",
         tracking: -0.6pt,
       )[
-        複数ビルド結果を用いた#linebreak()
-        Nix Binary Cacheの信頼性評価
+        ビルド証拠に基づく#linebreak()
+        Nix Binary Cacheの信頼モデルの提案
       ]
       #v(2mm)
       #text(size: 40pt, weight: "bold")[野田蒼馬]
@@ -38,7 +38,7 @@
     [
       #align(center)[
         #qrcode(
-          "https://github.com/akazdayo/reproductive-nix-cache",
+          "https://github.com/akazdayo/repro2",
           quiet-zone: true,
           background-fill: white,
           width: 56mm,
@@ -246,6 +246,19 @@
 
           #section(
             4,
+            [実験：sandbox有効時のビルド再現性],
+            [
+              #text(size: 28pt)[
+                同一ホスト上の3コンテナで、OS環境・UID・タイムゾーン・locale・CPU数などを変え、同じ5 derivationをビルドした。
+
+                対象はhello、jq、ripgrep、OpenSSL、Gitの計16 output。ビルド成果物のSHA-256を比較した。
+                #key[16 outputすべてのハッシュが3環境で一致した。] 全対象のビルドが成功した。ビルドログでは全環境で/buildの使用を確認した
+              ]
+            ],
+          )
+
+          #section(
+            5,
             [いただいた質問],
             [
               #text(size: 22pt)[
