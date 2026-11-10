@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
 
 concurrency:
@@ -18,7 +17,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      actions: read
       contents: read
       pages: write
       id-token: write
@@ -28,87 +26,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Restore built site
-        id: site_cache
-        uses: actions/cache/restore@v4
-        with:
-          path: _site
-          key: site-v2-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            site-v2-${{ runner.os }}-
-
-      - name: Find previous site artifact
-        if: steps.site_cache.outputs.cache-matched-key == ''
-        id: previous_site
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          previous=$(gh run list \
-            --workflow "${{ github.workflow }}" \
-            --status success \
-            --limit 1 \
-            --json databaseId,headSha \
-            --jq '.[0] | "\(.databaseId) \(.headSha)"')
-          read -r run_id head_sha <<< "$previous"
-          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
-          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
-
-      - name: Download previous site
-        if: steps.previous_site.outputs.run_id != ''
-        id: previous_site_download
-        continue-on-error: true
-        uses: actions/download-artifact@v5
-        with:
-          pattern: site-*
-          path: _site
-          merge-multiple: true
-          github-token: ${{ github.token }}
-          run-id: ${{ steps.previous_site.outputs.run_id }}
-
-      - name: Record previous site revision
-        if: >-
-          steps.previous_site_download.outcome == 'success' &&
-          steps.previous_site.outputs.head_sha != ''
-        run: echo "${{ steps.previous_site.outputs.head_sha }}" > _site/.build-sha
-
-      - name: Plan incremental build
-        id: build_plan
-        run: |
-          plan=$(bun run scripts/build-site.ts plan)
-          echo "needs_nix=$(jq -r .needsNix <<< "$plan")" >> "$GITHUB_OUTPUT"
-          echo "Building $(jq -r '.names | if length == 0 then "nothing" else join(", ") end' <<< "$plan")"
-
-      - name: Install Nix for Typst
-        if: steps.build_plan.outputs.needs_nix == 'true'
+      - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build changed presentations
+      - name: Build site
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}
-        run: bun run scripts/build-site.ts incremental
-
-      - name: Cache built site
-        if: steps.site_cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: _site
-          key: site-v2-${{ runner.os }}-${{ github.sha }}
-
-      - name: Upload reusable site artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: site-complete
-          path: _site
-          include-hidden-files: true
-          retention-days: 7
+        run: bun run scripts/build-site.ts
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5

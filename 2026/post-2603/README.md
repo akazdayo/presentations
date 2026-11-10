@@ -9,5 +9,6 @@
 リポジトリルートからビルドします。
 
 ```bash
-nix build .#post-2603
+nix run .#build-post-2603
+nix run .#watch-post-2603
 ```

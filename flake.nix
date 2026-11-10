@@ -11,13 +11,10 @@
 
     flake-utils.url = "github:numtide/flake-utils";
 
-    # Kept in the input set so the migrated lock file stays reproducible.
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    markdown-nix.url = "github:akazdayo/markdown.nix";
-    git-hooks.url = "github:cachix/git-hooks.nix";
   };
 
   outputs = inputs @ {
@@ -101,55 +98,7 @@
           ];
         };
 
-        checkSource = lib.cleanSourceWith {
-          src = ./.;
-          filter = path: type:
-            lib.cleanSourceFilter path type
-            && !builtins.elem (builtins.baseNameOf path) [
-              ".direnv"
-              ".git"
-              ".pre-commit-config.yaml"
-              ".slidev"
-              ".terraform"
-              "_site"
-              "dist"
-              "node_modules"
-              "result"
-            ];
-        };
-
-        typstSource = typixLib.cleanTypstSource ./.;
-        typstAssetSource = lib.cleanSourceWith {
-          src = ./.;
-          filter = path: type:
-            type
-            == "directory"
-            || (
-              let
-                sourcePath = toString path;
-              in
-                (lib.hasInfix "/poster/" sourcePath || lib.hasInfix "/shared/" sourcePath)
-                && builtins.any (suffix: lib.hasSuffix suffix sourcePath) [
-                  ".csv"
-                  ".gif"
-                  ".jpeg"
-                  ".jpg"
-                  ".json"
-                  ".png"
-                  ".svg"
-                  ".webp"
-                  ".yaml"
-                  ".yml"
-                ]
-            );
-        };
-        src = lib.fileset.toSource {
-          root = ./.;
-          fileset = lib.fileset.unions [
-            (lib.fileset.fromSource typstSource)
-            (lib.fileset.fromSource typstAssetSource)
-          ];
-        };
+        src = ./.;
 
         commonTypstArgs = {
           fontPaths = ["${pkgs.ipafont}/share/fonts"];
@@ -170,11 +119,34 @@
           }
         ];
 
-        posterSources = {
-          post-2603 = "2026/post-2603/poster/main.typ";
-          nix-cache-05-27 = "2026/nix-cache-05-27/poster/main.typ";
-          sechack-2nd-event = "2026/sechack-2nd-event/poster/main.typ";
-        };
+        posterEntries =
+          lib.concatMap (year: let
+            yearPath = ./. + "/${year}";
+            entries = builtins.readDir yearPath;
+          in
+            lib.concatMap (name: let
+              directory = yearPath + "/${name}";
+            in
+              lib.optional (
+                entries.${name}
+                == "directory"
+                && builtins.pathExists (directory + "/poster/main.typ")
+                && !(builtins.pathExists (directory + "/package.json"))
+                && !(builtins.pathExists (directory + "/slides/package.json"))
+              ) {
+                inherit name;
+                value = "${year}/${name}/poster/main.typ";
+              }) (builtins.attrNames entries))
+          (builtins.filter (name:
+            (builtins.readDir ./.).${name}
+            == "directory"
+            && builtins.match "[0-9]{4}" name != null)
+          (builtins.attrNames (builtins.readDir ./.)));
+
+        posterSources =
+          if builtins.length (lib.unique (map (entry: entry.name) posterEntries)) != builtins.length posterEntries
+          then throw "Typst poster names must be unique across years"
+          else builtins.listToAttrs posterEntries;
 
         posterPackages =
           lib.mapAttrs (
@@ -182,54 +154,39 @@
               typixLib.buildTypstProject (commonTypstArgs // {inherit src typstSource unstable_typstPackages;})
           )
           posterSources;
-
-        posterBuildScripts =
-          lib.mapAttrs (
-            _: typstSource:
-              typixLib.buildTypstProjectLocal (
-                commonTypstArgs // {inherit src typstSource unstable_typstPackages;}
-              )
-          )
+        posterApps =
+          lib.mapAttrs' (name: typstSource: {
+            name = "build-${name}";
+            value = flake-utils.lib.mkApp {
+              drv = typixLib.buildTypstProjectLocal (commonTypstArgs
+                // {
+                  inherit src typstSource unstable_typstPackages;
+                  typstOutput = "${builtins.dirOf typstSource}/poster.pdf";
+                });
+            };
+          })
           posterSources;
 
-        posterWatchScripts =
-          lib.mapAttrs (
-            name: typstSource:
-              typixLib.watchTypstProject (
-                commonTypstArgs
+        watchApps =
+          lib.mapAttrs' (name: typstSource: {
+            name = "watch-${name}";
+            value = flake-utils.lib.mkApp {
+              drv = typixLib.watchTypstProject (commonTypstArgs
                 // {
                   inherit typstSource;
-                  scriptName = "typst-watch-${name}";
-                }
-              )
-          )
+                  typstOutput = "${builtins.dirOf typstSource}/poster.pdf";
+                });
+            };
+          })
           posterSources;
-
-        preCommitCheck = inputs.git-hooks.lib.${system}.run {
-          src = checkSource;
-          hooks.treefmt = {
-            enable = true;
-            package = treefmtEval.config.build.wrapper;
-          };
-        };
       in {
+        apps = posterApps // watchApps;
+
         packages =
           posterPackages
           // {
             default = posterPackages.post-2603;
           };
-
-        apps =
-          lib.mapAttrs' (name: value: {
-            name = "build-${name}";
-            value = flake-utils.lib.mkApp {drv = value;};
-          })
-          posterBuildScripts
-          // lib.mapAttrs' (name: value: {
-            name = "watch-${name}";
-            value = flake-utils.lib.mkApp {drv = value;};
-          })
-          posterWatchScripts;
 
         checks =
           lib.mapAttrs' (name: value: {
@@ -237,28 +194,24 @@
             inherit value;
           })
           posterPackages
-          // {
-            formatting = treefmtEval.config.build.check checkSource;
-            pre-commit = preCommitCheck;
-          };
+          // {formatting = treefmtEval.config.build.check ./.;};
 
         formatter = treefmtEval.config.build.wrapper;
 
         devShells.default = typixLib.devShell {
           inherit (commonTypstArgs) fontPaths virtualPaths;
-          extraShellHook = preCommitCheck.shellHook;
-          packages =
-            preCommitCheck.enabledPackages
-            ++ builtins.attrValues posterWatchScripts
-            ++ [
-              treefmtEval.config.build.wrapper
-              pkgs.bun
-              pkgs.just
-              pkgs.marp-cli
-              pkgs.nodejs_24
-              pkgs.noto-fonts-cjk-sans
-              pkgs.noto-fonts-color-emoji
-            ];
+          extraShellHook = ''
+            if [[ $- == *i* ]]; then
+              printf '\nNushell の Nix 補完を使うには、リポジトリルートで実行してください:\n  source scripts/nix-completions.nu\n\n' >&2
+            fi
+          '';
+          packages = [
+            treefmtEval.config.build.wrapper
+            pkgs.bun
+            pkgs.nodejs_24
+            pkgs.noto-fonts-cjk-sans
+            pkgs.noto-fonts-color-emoji
+          ];
         };
       }
     );

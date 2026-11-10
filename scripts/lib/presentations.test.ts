@@ -3,15 +3,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  affectedPresentations,
   artifactPath,
   discoverPresentations,
-  findPresentation,
-  presentationMatrix,
   presentationIndex,
   placeholderDate,
   placeholderTitle,
-  presentationBackends,
   presentations,
   routeBase,
 } from "./presentations";
@@ -22,54 +18,11 @@ describe("presentation catalog", () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  test("registers a backend for every format", () => {
-    for (const presentation of presentations) {
-      expect(presentationBackends[presentation.kind]).toBeDefined();
-    }
-  });
-
-  test("resolves presentations by name", () => {
-    expect(findPresentation("nix-lt").kind).toBe("marp");
-    expect(() => findPresentation("missing")).toThrow("Unknown presentation");
-  });
-
   test("maps web and Typst presentations to their site artifacts", () => {
-    expect(artifactPath(findPresentation("nix-lt"))).toBe(
-      "2026/nix-lt/index.html",
-    );
-    expect(artifactPath(findPresentation("post-2603"))).toBe(
-      "2026/post-2603/poster/poster.pdf",
-    );
-  });
-
-  test("generates the GitHub Actions matrix from the catalog", () => {
-    const matrix = presentationMatrix();
-
-    expect(matrix.include.map(({ presentation }) => presentation)).toEqual(
-      presentations.map(({ name }) => name),
-    );
-    for (const [index, entry] of matrix.include.entries()) {
-      const presentation = presentations[index];
-      expect(entry.output).toBe(presentation.route);
-      expect(entry.source).toBe(
-        presentation.route.split("/").slice(0, 2).join("/"),
-      );
-      expect(entry.kind).toBe(presentation.kind === "typst" ? "typst" : "web");
-    }
-  });
-
-  test("selects only presentations affected by presentation-local changes", () => {
-    expect(
-      affectedPresentations([
-        "2026/nix-lt/slides.md",
-        ".github/workflows/deploy-pages.yml",
-      ]).map(({ name }) => name),
-    ).toEqual(["nix-lt"]);
-  });
-
-  test("selects every presentation for shared build input changes", () => {
-    expect(affectedPresentations(["shared/theme.css"])).toEqual(presentations);
-    expect(affectedPresentations(["flake.lock"])).toEqual(presentations);
+    const marp = presentations.find(({ name }) => name === "nix-lt")!;
+    const typst = presentations.find(({ name }) => name === "post-2603")!;
+    expect(artifactPath(marp)).toBe("2026/nix-lt/index.html");
+    expect(artifactPath(typst)).toBe("2026/post-2603/poster/poster.pdf");
   });
 
   test("builds normalized GitHub Pages base paths", () => {
@@ -81,7 +34,10 @@ describe("presentation catalog", () => {
   test("generates public URLs for the presentation index", () => {
     expect(
       presentationIndex(
-        [findPresentation("nix-lt"), findPresentation("post-2603")],
+        [
+          presentations.find(({ name }) => name === "nix-lt")!,
+          presentations.find(({ name }) => name === "post-2603")!,
+        ],
         "https://example.com/presentations/",
       ),
     ).toEqual([

@@ -6,17 +6,14 @@ This repository is a monorepo of presentation sources organized as `YEAR/<presen
 
 ## Build, Test, and Development Commands
 
-Enter the reproducible toolchain with `nix develop`, then use:
+Enter the reproducible toolchain with `nix develop`. For Slidev and Marp, run `bun install --frozen-lockfile`, then `bun run dev` or `bun run build` in the individual deck directory. From the repository root:
 
-- `just list` — show all auto-discovered presentations.
-- `just dev nix-journey` — run a Slidev or Marp deck locally.
-- `just build <name>` — build one catalog entry, including Typst posters.
-- `just build-site` — build every web/PDF artifact and the Pages index.
-- `bun test scripts/lib/presentations.test.ts` — run catalog unit tests.
-- `just check` — run flake checks, formatting validation, hooks, and Typst builds.
-- `just format` — apply treefmt formatting across supported file types.
-
-For an individual JavaScript deck, install dependencies in its source directory with `bun install --frozen-lockfile`.
+- `bun run scripts/create.ts` — create a presentation from a template.
+- `nix run .#build-post-2603` / `nix run .#watch-post-2603` — build or watch a Typst poster by name.
+- `bun run scripts/build-site.ts` — build every web/PDF artifact and the Pages index.
+- `bun test scripts/lib/*.test.ts` — run catalog and creation tests.
+- `nix flake check` — run formatting validation and Typst builds.
+- `nix fmt` — apply treefmt formatting across supported file types.
 
 ## Coding Style & Naming Conventions
 
@@ -24,7 +21,7 @@ Use LF line endings and preserve Markdown prose wrapping. Let treefmt enforce Al
 
 ## Testing Guidelines
 
-Tests use Bun's `bun:test` API and follow the `*.test.ts` naming pattern. Add or update tests whenever catalog discovery, routes, metadata defaults, build matrices, or artifact paths change. Before submitting, run the focused Bun test and `just check`; use `just build <name>` for content or configuration changes affecting a specific presentation.
+Tests use Bun's `bun:test` API and follow the `*.test.ts` naming pattern. Add or update tests whenever catalog discovery, routes, metadata defaults, or artifact paths change. Before submitting, run the relevant Bun tests and `nix flake check`; build the affected presentation directly for content or configuration changes.
 
 ## Commit & Pull Request Guidelines
 

@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 export const repositoryRoot = join(import.meta.dir, "../..");
-const localFlakeRef = ".";
 
 export type PresentationKind = "slidev" | "marp" | "typst";
 
@@ -37,32 +36,10 @@ export type Presentation =
   | MarpPresentation
   | TypstPresentation;
 
-export interface PresentationMatrixEntry {
-  presentation: string;
-  kind: "web" | "typst";
-  source: string;
-  output: string;
-}
-
 export interface PresentationIndexEntry {
   url: string;
   title: string;
   date: string;
-}
-
-export interface SiteBuildOptions {
-  outputDirectory: string;
-  pagesBasePath: string;
-  flakeRef: string;
-}
-
-/** A format-specific implementation behind the common presentation commands. */
-export interface PresentationBackend<
-  TPresentation extends Presentation = Presentation,
-> {
-  dev?(presentation: TPresentation): void;
-  build(presentation: TPresentation): void;
-  buildForSite(presentation: TPresentation, options: SiteBuildOptions): void;
 }
 
 interface PresentationMetadata {
@@ -186,47 +163,6 @@ export function discoverPresentations(root = repositoryRoot): Presentation[] {
 
 export const presentations = discoverPresentations();
 
-export function presentationMatrix(catalog: Presentation[] = presentations): {
-  include: PresentationMatrixEntry[];
-} {
-  return {
-    include: catalog.map((presentation) => ({
-      presentation: presentation.name,
-      kind: presentation.kind === "typst" ? "typst" : "web",
-      source: presentation.route.split("/").slice(0, 2).join("/"),
-      output: presentation.route,
-    })),
-  };
-}
-
-const siteWideInputs = ["flake.lock", "flake.nix", "shared/", "templates/"];
-
-export function affectedPresentations(
-  changedPaths: string[],
-  catalog: Presentation[] = presentations,
-): Presentation[] {
-  const normalizedPaths = changedPaths.map((path) =>
-    path.replaceAll("\\\\", "/"),
-  );
-  const changesAllPresentations = normalizedPaths.some((path) =>
-    siteWideInputs.some((input) =>
-      input.endsWith("/") ? path.startsWith(input) : path === input,
-    ),
-  );
-
-  if (changesAllPresentations) return catalog;
-
-  const changedDirectories = new Set(
-    normalizedPaths
-      .map((path) => /^(\d{4}\/[^/]+)(?:\/|$)/.exec(path)?.[1])
-      .filter((path) => path !== undefined),
-  );
-
-  return catalog.filter((presentation) =>
-    changedDirectories.has(presentation.route.split("/").slice(0, 2).join("/")),
-  );
-}
-
 export function run(command: string, args: string[], cwd: string): void {
   const result = Bun.spawnSync([command, ...args], {
     cwd,
@@ -272,145 +208,48 @@ function installAndRun(presentation: WebPresentation, args: string[]): void {
   run("bun", args, cwd);
 }
 
-const slidevBackend: PresentationBackend<
-  Extract<Presentation, { kind: "slidev" }>
-> = {
-  dev(presentation) {
-    installAndRun(presentation, ["run", "dev"]);
-  },
-  build(presentation) {
-    installAndRun(presentation, ["run", "build"]);
-  },
-  buildForSite(presentation, options) {
-    mkdirSync(options.outputDirectory, { recursive: true });
+export function buildPresentationForSite(
+  presentation: Presentation,
+  outputDirectory: string,
+  pagesBasePath: string,
+): void {
+  const output = join(outputDirectory, presentation.route);
+  mkdirSync(output, { recursive: true });
+
+  if (presentation.kind === "typst") {
+    run(
+      "nix",
+      [
+        "run",
+        `.#build-${presentation.target}`,
+        "--",
+        join(output, "poster.pdf"),
+      ],
+      repositoryRoot,
+    );
+    return;
+  }
+
+  if (presentation.kind === "slidev") {
     installAndRun(presentation, [
       "run",
       "build",
       "--",
       "--out",
-      options.outputDirectory,
+      output,
       "--base",
-      routeBase(presentation.route, options.pagesBasePath),
+      routeBase(presentation.route, pagesBasePath),
       "--router-mode",
       "hash",
     ]);
-  },
-};
-
-const marpBackend: PresentationBackend<
-  Extract<Presentation, { kind: "marp" }>
-> = {
-  dev(presentation) {
-    installAndRun(presentation, ["run", "dev"]);
-  },
-  build(presentation) {
-    installAndRun(presentation, ["run", "build"]);
-  },
-  buildForSite(presentation, options) {
-    mkdirSync(options.outputDirectory, { recursive: true });
+  } else {
     installAndRun(presentation, [
       "run",
       "build",
       "--",
       "--output",
-      join(options.outputDirectory, "index.html"),
+      join(output, "index.html"),
     ]);
-  },
-};
-
-const typstBackend: PresentationBackend<TypstPresentation> = {
-  dev(presentation) {
-    run(
-      "nix",
-      [
-        "run",
-        `${localFlakeRef}#watch-${presentation.target}`,
-        "--",
-        join(repositoryRoot, artifactPath(presentation)),
-      ],
-      repositoryRoot,
-    );
-  },
-  build(presentation) {
-    run(
-      "nix",
-      [
-        "run",
-        `${localFlakeRef}#build-${presentation.target}`,
-        "--",
-        join(repositoryRoot, artifactPath(presentation)),
-      ],
-      repositoryRoot,
-    );
-  },
-  buildForSite(presentation, options) {
-    mkdirSync(options.outputDirectory, { recursive: true });
-    run(
-      "nix",
-      [
-        "run",
-        `${options.flakeRef}#build-${presentation.target}`,
-        "--",
-        join(options.outputDirectory, "poster.pdf"),
-      ],
-      repositoryRoot,
-    );
-  },
-};
-
-export const presentationBackends = {
-  slidev: slidevBackend,
-  marp: marpBackend,
-  typst: typstBackend,
-};
-
-export function findPresentation(name: string): Presentation {
-  const presentation = presentations.find(
-    (candidate) => candidate.name === name,
-  );
-  if (presentation) return presentation;
-
-  throw new Error(
-    `Unknown presentation: ${name}\nAvailable presentations:\n${presentations
-      .map((candidate) => `  ${candidate.name}`)
-      .join("\n")}`,
-  );
-}
-
-export function devPresentation(presentation: Presentation): void {
-  presentationBackends[presentation.kind].dev?.(presentation);
-}
-
-export function buildPresentation(presentation: Presentation): void {
-  switch (presentation.kind) {
-    case "slidev":
-      return presentationBackends.slidev.build(presentation);
-    case "marp":
-      return presentationBackends.marp.build(presentation);
-    case "typst":
-      return presentationBackends.typst.build(presentation);
-  }
-}
-
-export function buildPresentationForSite(
-  presentation: Presentation,
-  options: SiteBuildOptions,
-): void {
-  const siteOptions = {
-    ...options,
-    outputDirectory: join(options.outputDirectory, presentation.route),
-  };
-
-  switch (presentation.kind) {
-    case "slidev":
-      return presentationBackends.slidev.buildForSite(
-        presentation,
-        siteOptions,
-      );
-    case "marp":
-      return presentationBackends.marp.buildForSite(presentation, siteOptions);
-    case "typst":
-      return presentationBackends.typst.buildForSite(presentation, siteOptions);
   }
 }
 

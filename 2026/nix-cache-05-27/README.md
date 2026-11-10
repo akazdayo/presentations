@@ -8,5 +8,6 @@
 リポジトリルートからビルドします。
 
 ```bash
-nix build .#nix-cache-05-27
+nix run .#build-nix-cache-05-27
+nix run .#watch-nix-cache-05-27
 ```

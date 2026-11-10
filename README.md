@@ -3,74 +3,70 @@
 過去のプレゼンテーション資料をまとめたリポジトリです！Actionsで自動デプロイしてるー
 https://akazdayo.github.io/presentations
 
+## 新しい資料の作成
+
+リポジトリルートで次のコマンドを実行すると、形式、名前、タイトル、発表日を
+入力して Slidev・Marp・Typst ポスターを作成できます。
+
+```bash
+bun run scripts/create.ts
+```
+
+発表日の年のディレクトリに作成します。Slidev と Marp は依存関係をインストールし、
+`bun.lock` を生成します。Typst の新規ファイルは Git に追加後、Nix から利用できます。
+資料名は年をまたいでも一意にしてください。
+
 ## Development
 
-Nix を使う場合は、リポジトリルートで開発環境に入ります。
+Nix を使う場合は、リポジトリルートで `nix develop` を実行します。
+Slidev や Marp の資料は各ディレクトリで直接操作します。
 
 ```bash
-nix develop
-just list
+cd 2026/nix-journey/slides
+bun install --frozen-lockfile
+bun run dev
+bun run build
 ```
 
-形式にかかわらず、カタログ名を指定して起動・ビルドできます。
-Typst の `dev` は Typix の watch を起動し、保存するたびに
-`poster/poster.pdf` を更新します。自動リロード対応の PDF ビューアーで開いてください。
+Typst ポスターはリポジトリルートから Typix でビルドします。PDF は各 `poster/poster.pdf` に出力されます。編集時は watch で変更を監視できます。
 
 ```bash
-just dev nix-journey
-just dev nix-lt
-just dev post-2603
-just build nix-journey
-just build nix-lt
-just build post-2603
+nix run .#build-post-2603
+nix run .#watch-post-2603
 ```
 
-`scripts/lib/presentations.ts` は年別ディレクトリを走査して資料を自動検出し、
-共通バックエンドインターフェイスが Slidev、Marp、Typst の形式固有処理を
-吸収します。`just` の各コマンドと Pages のサイト生成は同じ検出結果を参照します。
+Nushell では、リポジトリルートで次を実行すると `nix run .#build-` などの
+Tab 補完を使えます。候補は Nix の flake 出力から取得します。
 
-各発表の `presentation.json` には、一覧やPagesで表示する日付とタイトルだけを
-記述します。ファイルまたは項目がない場合は `TBD` と `Untitled (<name>)` が使われます。
-
-```json
-{
-  "date": "2026-03-11",
-  "title": "私がNixについてやったこと"
-}
+```nu
+source scripts/nix-completions.nu
 ```
 
-`nix flake check` または `just check` は、3つの Typst ポスターをすべてビルドします。
+この設定は現在の Nushell セッションに適用されます。既存の外部補完がある場合は、
+Nix 以外のコマンドと Nix がファイル名補完を求める場合に引き継ぎます。
 
-リポジトリ全体の整形には treefmt を使います。
+`nix flake check` は Typst ポスターのビルドと整形状態を検証します。
+`bun test scripts/lib/*.test.ts` でカタログと作成処理のテスト、
+`nix fmt` でリポジトリ全体の整形を実行できます。
+
+全資料の Web 成果物と索引を生成する場合は、リポジトリルートで実行します。
 
 ```bash
-nix fmt
+bun run scripts/build-site.ts
 ```
 
-Alejandra（Nix）、Prettier（Markdown / JSON / YAML / TypeScript / Vue）、typstyle（Typst）、shfmt（Shell）、`terraform fmt`、gofmt がまとめて実行されます。`nix develop` に入ると git-hooks.nix が同じtreefmtチェックをpre-commit hookとして設定します。`nix flake check` でも整形状態とhookを検証します。
-
-全資料のWeb成果物とPages用のMarkdown索引をまとめて生成する場合:
-
-```bash
-just build-site
-```
-
-成果物は `_site/` に生成されます。Slidev 7件とMarp 1件は静的Webページ、Typst 3件はPDFとして出力されます。
-同時に `/.well-known/presentations.json` へ、各資料の公開URL・タイトル・日程を配列として生成します。
-公開URLのベースを変更する場合は `PAGES_BASE_URL` 環境変数を指定してください。
+成果物は `_site/` に生成されます。各資料の `presentation.json` に記載した
+日付とタイトルを索引と `/.well-known/presentations.json` に使います。
+項目がない場合は `TBD` と `Untitled (<name>)` が使われます。
+公開 URL のベースは `PAGES_BASE_URL`、Web 資料のサブパスは
+`PAGES_BASE_PATH` 環境変数で指定できます。
 
 ## GitHub Pages
 
-`.github/workflows/deploy-pages.yml` は `main` へのpushまたは手動実行で、次を自動実行します。
-
-1. Nix開発環境を用意する
-2. GitHub Pagesのサブパスを取得する
-3. Slidev、Marp、Typstの全資料をWeb表示用にビルドする
-4. 資料への箇条書きリンクを持つ `_site/index.md` を生成する
-5. GitHub公式のJekyll ActionとPrimerテーマでMarkdownをビルドする
-6. 生成サイトをGitHub Pagesへデプロイする
-
-生成物はGitへコミットせず、毎回ソースからActions上で生成します。初回のみリポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。
+`.github/workflows/deploy-pages.yml` は `main` への push または手動実行時に、
+全資料をソースからビルドして GitHub Pages へデプロイします。
+初回のみリポジトリの **Settings → Pages → Build and deployment → Source** を
+**GitHub Actions** に設定してください。
 
 ## Layout
 
@@ -88,8 +84,7 @@ presentations/
 │   ├── logos/
 │   └── diagrams/
 ├── templates/{typst-poster,typst-slides,marp,slidev}/
-├── flake.nix
-└── justfile
+└── flake.nix
 ```
 
 各 Slidev プロジェクトは、移行時点の `bun.lock` と個別の `package.json` を保持しています。依存関係は各Slidevプロジェクトのディレクトリで `bun install --frozen-lockfile` を実行してください。

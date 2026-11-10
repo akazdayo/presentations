@@ -1,16 +1,8 @@
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  affectedPresentations,
   artifactPath,
   buildPresentationForSite,
-  findPresentation,
   presentationIndex,
   presentations,
   repositoryRoot,
@@ -18,122 +10,24 @@ import {
 } from "./lib/presentations";
 
 const site = join(repositoryRoot, "_site");
-const flakeRef = process.env.FLAKE_REF ?? ".";
 const pagesBasePath = (process.env.PAGES_BASE_PATH ?? "").replace(/\/+$/, "");
 const siteBaseUrl = (
   process.env.PAGES_BASE_URL ?? "https://akazdayo.github.io/presentations"
 ).replace(/\/+$/, "");
-const buildShaPath = join(site, ".build-sha");
-const buildInputHashPath = join(site, ".build-input-hash");
-const routesPath = join(site, ".presentation-routes.json");
-
-function prepareSite(): void {
-  rmSync(site, { force: true, recursive: true });
-  mkdirSync(site, { recursive: true });
-}
-
-function build(presentation: Presentation): void {
+rmSync(site, { force: true, recursive: true });
+mkdirSync(site, { recursive: true });
+for (const presentation of presentations) {
   console.log(`Building ${presentation.kind}: ${presentation.title}`);
-  buildPresentationForSite(presentation, {
-    flakeRef,
-    outputDirectory: site,
-    pagesBasePath,
-  });
+  buildPresentationForSite(presentation, site, pagesBasePath);
 }
 
-function capture(command: string, args: string[]): string | undefined {
-  const result = Bun.spawnSync([command, ...args], {
-    cwd: repositoryRoot,
-    stderr: "inherit",
-    stdout: "pipe",
-  });
-  return result.success ? result.stdout.toString().trim() : undefined;
-}
-
-function currentSha(): string {
-  const sha = capture("git", ["rev-parse", "HEAD"]);
-  if (!sha) throw new Error("Unable to resolve the current Git commit");
-  return sha;
-}
-
-function incrementalPlan(): Presentation[] {
-  if (!existsSync(buildShaPath)) return presentations;
-
-  const baseSha = readFileSync(buildShaPath, "utf8").trim();
-  if (!baseSha) return presentations;
-
-  if (existsSync(buildInputHashPath)) {
-    const previousBuildInputHash = readFileSync(
-      buildInputHashPath,
-      "utf8",
-    ).trim();
-    if (previousBuildInputHash !== buildInputHash()) return presentations;
-  }
-
-  const changed = capture("git", [
-    "diff",
-    "--name-only",
-    `${baseSha}..HEAD`,
-    "--",
-  ]);
-  if (changed === undefined) return presentations;
-
-  const selected = affectedPresentations(
-    changed.split("\n").filter((path) => path.length > 0),
-  );
-  const missing = presentations.filter(
-    (presentation) => !existsSync(join(site, artifactPath(presentation))),
-  );
-  return presentations.filter(
-    (presentation) =>
-      selected.includes(presentation) || missing.includes(presentation),
-  );
-}
-
-function buildInputHash(): string {
-  const hash = capture("git", ["rev-parse", "HEAD:scripts"]);
-  if (!hash) throw new Error("Unable to hash site build scripts");
-  return hash;
-}
-
-function removeStaleRoutes(): void {
-  if (!existsSync(routesPath)) return;
-
-  const previousRoutes = JSON.parse(
-    readFileSync(routesPath, "utf8"),
-  ) as string[];
-  const currentRoutes = new Set(
-    presentations.map((presentation) => presentation.route),
-  );
-  for (const route of previousRoutes) {
-    if (!currentRoutes.has(route)) {
-      rmSync(join(site, route), { force: true, recursive: true });
-    }
-  }
-}
-
-function recordBuildState(): void {
-  writeFileSync(buildShaPath, `${currentSha()}\n`);
-  writeFileSync(buildInputHashPath, `${buildInputHash()}\n`);
-  writeFileSync(
-    routesPath,
-    `${JSON.stringify(presentations.map((presentation) => presentation.route))}\n`,
-  );
-}
-
-function buildIncrementally(): void {
-  mkdirSync(site, { recursive: true });
-  removeStaleRoutes();
-  const selected = incrementalPlan();
-
-  for (const presentation of selected) {
-    rmSync(join(site, presentation.route), { force: true, recursive: true });
-    build(presentation);
-  }
-
-  verifyArtifacts(presentations);
-  writeIndex();
-  recordBuildState();
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function indexLink(presentation: Presentation): string {
@@ -142,7 +36,7 @@ function indexLink(presentation: Presentation): string {
     presentation.kind === "typst" ? path : `${presentation.route}/`;
   const format =
     presentation.kind === "typst" ? "Typst PDF" : `${presentation.kind} Web`;
-  return `<li><a href="./${linkPath}">${presentation.date} — ${presentation.title}（${format}）</a></li>`;
+  return `<li><a href="./${linkPath}">${escapeHtml(presentation.date)} — ${escapeHtml(presentation.title)}（${format}）</a></li>`;
 }
 
 function writeIndex(): void {
@@ -193,51 +87,5 @@ function verifyArtifacts(expected: Presentation[]): void {
   }
 }
 
-const [command, name, ...extraArguments] = Bun.argv.slice(2);
-
-if (extraArguments.length > 0) {
-  throw new Error("Usage: build-site.ts [build <name>|index]");
-}
-
-switch (command) {
-  case undefined:
-    prepareSite();
-    for (const presentation of presentations) build(presentation);
-    verifyArtifacts(presentations);
-    writeIndex();
-    recordBuildState();
-    break;
-  case "build": {
-    if (!name) throw new Error("Usage: build-site.ts build <name>");
-    const presentation = findPresentation(name);
-    prepareSite();
-    build(presentation);
-    verifyArtifacts([presentation]);
-    break;
-  }
-  case "index":
-    if (name) throw new Error("Usage: build-site.ts index");
-    writeIndex();
-    break;
-  case "plan": {
-    if (name) throw new Error("Usage: build-site.ts plan");
-    const selected = incrementalPlan();
-    console.log(
-      JSON.stringify({
-        names: selected.map((presentation) => presentation.name),
-        needsNix: selected.some(
-          (presentation) => presentation.kind === "typst",
-        ),
-      }),
-    );
-    break;
-  }
-  case "incremental":
-    if (name) throw new Error("Usage: build-site.ts incremental");
-    buildIncrementally();
-    break;
-  default:
-    throw new Error(
-      "Usage: build-site.ts [build <name>|index|plan|incremental]",
-    );
-}
+verifyArtifacts(presentations);
+writeIndex();

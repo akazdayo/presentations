@@ -1,3 +1,5 @@
 # Templates
 
-新しい資料を追加するときの最小テンプレートです。年と発表名の下へコピーし、タイトルと `package.json` の `name` を変更してください。
+新しい Slidev・Marp・Typst ポスターはリポジトリルートから `bun run scripts/create.ts` で作成できます。各テンプレートを手動でコピーして使うこともできます。
+
+`typst-slides` は手動作成用です。現在のサイト生成では検出されません。
