@@ -40,7 +40,7 @@
           pname = "slidev-prettier";
           version = "1.0.0";
           src = ./tools/slidev-prettier;
-          npmDepsHash = "sha256-u9wpcUqJ3DnWE9Jz5EMEO0fSVFjJ3qZup10rvTbgMmY=";
+          npmDepsHash = "sha256-H3BeLagpZKxaYiQow5hJavaIQIUK1DpQ1CEW44Os6V0=";
           dontNpmBuild = true;
           nativeBuildInputs = [pkgs.makeWrapper];
           meta.mainProgram = "prettier";
@@ -128,8 +128,7 @@
               let
                 sourcePath = toString path;
               in
-                (lib.hasInfix "/poster/" sourcePath
-                  || lib.hasInfix "/shared/" sourcePath)
+                (lib.hasInfix "/poster/" sourcePath || lib.hasInfix "/shared/" sourcePath)
                 && builtins.any (suffix: lib.hasSuffix suffix sourcePath) [
                   ".csv"
                   ".gif"
@@ -180,10 +179,7 @@
         posterPackages =
           lib.mapAttrs (
             _: typstSource:
-              typixLib.buildTypstProject (
-                commonTypstArgs
-                // {inherit src typstSource unstable_typstPackages;}
-              )
+              typixLib.buildTypstProject (commonTypstArgs // {inherit src typstSource unstable_typstPackages;})
           )
           posterSources;
 
@@ -191,8 +187,7 @@
           lib.mapAttrs (
             _: typstSource:
               typixLib.buildTypstProjectLocal (
-                commonTypstArgs
-                // {inherit src typstSource unstable_typstPackages;}
+                commonTypstArgs // {inherit src typstSource unstable_typstPackages;}
               )
           )
           posterSources;
@@ -218,7 +213,11 @@
           };
         };
       in {
-        packages = posterPackages // {default = posterPackages.post-2603;};
+        packages =
+          posterPackages
+          // {
+            default = posterPackages.post-2603;
+          };
 
         apps =
           lib.mapAttrs' (name: value: {
@@ -254,13 +253,11 @@
             ++ [
               treefmtEval.config.build.wrapper
               pkgs.bun
-              pkgs.go
               pkgs.just
               pkgs.marp-cli
               pkgs.nodejs_24
               pkgs.noto-fonts-cjk-sans
               pkgs.noto-fonts-color-emoji
-              pkgs.terraform
             ];
         };
       }
