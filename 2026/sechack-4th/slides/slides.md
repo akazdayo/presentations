@@ -12,11 +12,8 @@ duration: 10min
 akazdayo
 
 ---
-
-# 自己紹介
-
-- Point one
-- Point two
+src: ../../../shared/components/slidev/self-introduction.md
+---
 
 ---
 layout: statement
@@ -190,11 +187,7 @@ layout: two-cols-header
 
 # ビルド成果物のハッシュを共有して合意形成を行う
 
-二つの方法に分裂した。
-
 ::left::
-
-<v-click>
 
 ### インターネット上で行う
 
@@ -213,12 +206,17 @@ layout: two-cols-header
 - 本当にビルドを実行したことを証明することが難しい
 - TEEを用いて、ビルドの証明を行おうと思ったが非常に難しいことが分かった(まだ試行錯誤中)
 
-</v-click>
-
 ::right::
-<v-click>
+
+<img src="./imgs/tee.png"/>
+
+---
+layout: two-cols-header
+---
 
 ### イントラネット上で行う
+
+::left::
 
 #### 面白ポイント
 
@@ -229,8 +227,16 @@ layout: two-cols-header
 これは難無く実装することができた。  
 実際に2人で試してみたところ、キャッシュミスしたパッケージ5420件中2968件(1484組)が一致する結果となり、実際に有用であることが分かった。
 
-<!-- ここ、 円グラフ入れたら分かりやすいかもね-->
-</v-click>
+::right::
+
+<img src="./imgs/idp.png" style="max-height: 200px; margin: 0 auto" />
+
+```mermaid {scale: 0.4}
+%%{init: {"theme": "base", "themeVariables": {"pie1": "#165a9f", "pie2": "#a63c00", "pieSectionTextColor": "#ffffff", "pieOpacity": "1"}}}%%
+pie showData
+  "一致" : 2968
+  "その他" : 2452
+```
 
 ---
 layout: two-cols-header
@@ -242,6 +248,8 @@ layout: two-cols-header
 **できること**: Nixから.deb packageへ変換
 
 **目的**: Nixを用いた再現性の高いビルド結果をNix以外の世界へと広げたい
+
+<img src="./imgs/deb.png"/>
 
 ::right::
 
@@ -267,5 +275,5 @@ debの依存関係を適切に処理するため、/nix/store/ のパスごと�
 
 # これからやりたいこと
 
-ハッシュレベルの合意形成についても進めつつ、主軸は別に置きたいと思っている。  
-例えば、append-onlyなlogを持ったNix drivenなパッケージマネージャ
+- ハッシュによるビルド結果の合意形成を引き続き検討する
+- 配布履歴を追跡できる、Nixを使ったパッケージマネージャを考える
