@@ -33,26 +33,7 @@
         inherit (pkgs) lib;
         typixLib = typix.lib.${system};
 
-        slidevPrettier = pkgs.buildNpmPackage {
-          pname = "slidev-prettier";
-          version = "1.0.0";
-          src = ./tools/slidev-prettier;
-          npmDepsHash = "sha256-H3BeLagpZKxaYiQow5hJavaIQIUK1DpQ1CEW44Os6V0=";
-          dontNpmBuild = true;
-          nativeBuildInputs = [pkgs.makeWrapper];
-          meta.mainProgram = "prettier";
-          installPhase = ''
-            runHook preInstall
-
-            mkdir -p "$out/lib/slidev-prettier" "$out/bin"
-            cp -r node_modules "$out/lib/slidev-prettier/"
-            makeWrapper ${pkgs.nodejs}/bin/node "$out/bin/prettier" \
-              --add-flags "$out/lib/slidev-prettier/node_modules/prettier/bin/prettier.cjs" \
-              --add-flags "--plugin=$out/lib/slidev-prettier/node_modules/prettier-plugin-slidev/dist/index.js"
-
-            runHook postInstall
-          '';
-        };
+        slidevPrettierPlugin = pkgs.callPackage ./tools/slidev-prettier {};
 
         treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
           projectRootFile = "flake.nix";
@@ -62,10 +43,10 @@
             gofmt.enable = true;
             prettier = {
               enable = true;
-              package = slidevPrettier;
               settings = {
                 endOfLine = "lf";
                 proseWrap = "preserve";
+                plugins = ["${slidevPrettierPlugin}/node_modules/prettier-plugin-slidev/dist/index.js"];
                 overrides = [
                   {
                     files = [
