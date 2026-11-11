@@ -21,6 +21,10 @@ bun run scripts/create.ts
 Nix を使う場合は、リポジトリルートで `nix develop` を実行します。
 Slidev や Marp の資料は各ディレクトリで直接操作します。
 
+Neovim などから Prettier で Slidev を整形する場合は、最初にリポジトリルートで
+`npm ci --prefix tools/slidev-prettier` を実行してプラグインをインストールします。
+エディターを再起動すると、Slidev 用のパーサーが使われます。
+
 ```bash
 cd 2026/nix-journey/slides
 bun install --frozen-lockfile
