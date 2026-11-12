@@ -286,6 +286,14 @@ layout: two-cols-header
 
 <img src="./imgs/tee.png"/>
 
+<!--
+BitcoinではPoWで参加者の影響力を制限する
+↓
+でも、ビルドに加えてPoWも行うのは負担が大きい
+↓
+そこで、ビルドの実行をTEEで証明できないか考えた
+-->
+
 ---
 layout: two-cols-header
 ---
@@ -314,12 +322,6 @@ pie showData
   "一致" : 2968
   "その他" : 2452
 ```
-
-<!--
-Identityを一人一つに束縛する必要がある説明を入れたいかも
-
-BitcoinならPoWだけどNixでやるとビルド&PoWはおかしいよね。みたいな
--->
 
 ---
 
