@@ -23,11 +23,25 @@ src: ../../../shared/components/slidev/self-introduction.md
 layout: statement
 ---
 
-# 世界一かわいいNix。
+# 私には、大好きなツールがあります。
 
-<!--
-ここ、文脈がなってない
--->
+---
+layout: statement
+---
+
+# それが、Nixです。
+
+---
+layout: statement
+---
+
+# 私にとっては、世界一かわいいNix。
+
+---
+layout: statement
+---
+
+# 今日は、その好きなところを話します。
 
 ---
 
