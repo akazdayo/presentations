@@ -1,3 +1,32 @@
 .slidev-layout {
-  #font-size: 34pt;
+  font-size: 24pt;
+}
+
+.slidev-layout h1 {
+  font-size: 1.4em;
+}
+
+.slidev-layout h2 {
+  font-size: 1.25em;
+}
+
+.slidev-layout h3 {
+  font-size: 1.125em;
+}
+
+.slidev-layout h4,
+.slidev-layout blockquote {
+  font-size: 1em;
+}
+
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3,
+.slidev-layout h4 {
+  line-height: 1.2;
+}
+
+.slidev-layout p,
+.slidev-layout li {
+  line-height: 1.3;
 }
