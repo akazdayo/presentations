@@ -316,12 +316,16 @@ pie showData
 ```
 
 <!--
-動いたものの画像が載せられると良い
-
 Identityを一人一つに束縛する必要がある説明を入れたいかも
 
 BitcoinならPoWだけどNixでやるとビルド&PoWはおかしいよね。みたいな
 -->
+
+---
+
+# 登録されたビルド成果物
+
+<img src="./imgs/idp-results.png" style="max-height: 400px; margin: 0 auto" />
 
 ---
 layout: two-cols-header
